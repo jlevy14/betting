@@ -1,6 +1,11 @@
 import "server-only";
 import { prisma } from "@/lib/db";
-import { getCurrentMeta, getEventTdInfo, type SeasonMeta } from "@/lib/espn";
+import {
+  getCurrentMeta,
+  getEventTdInfo,
+  getWeekGames,
+  type SeasonMeta,
+} from "@/lib/espn";
 import { weekLabel } from "@/lib/format";
 import type { Member, Pick, Week } from "@prisma/client";
 
@@ -169,6 +174,51 @@ export async function getBoardData(week: Week): Promise<BoardData> {
     perShareCents,
     earliestKickoff: kickoffs[0] ?? null,
   };
+}
+
+// How long before the week's first kickoff the Wall of Shame turns on.
+const SHAME_LEAD_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+export type ShameInfo = {
+  active: boolean;
+  firstKickoff: Date | null;
+  deadbeats: string[]; // display names of members with no pick this week
+};
+
+/**
+ * Figures out who hasn't picked yet, but only "activates" starting 8 hours
+ * before the first kickoff of the week. Everything is scoped to the given week,
+ * so it empties as people pick and resets automatically each new week.
+ */
+export async function getShameInfo(week: Week): Promise<ShameInfo> {
+  const games = await getWeekGames(weekMeta(week));
+  const kicks = games
+    .map((g) => new Date(g.kickoffAt))
+    .filter((d) => !Number.isNaN(d.getTime()))
+    .sort((a, b) => a.getTime() - b.getTime());
+  const firstKickoff = kicks[0] ?? null;
+
+  const now = Date.now();
+  const active =
+    !!firstKickoff && now >= firstKickoff.getTime() - SHAME_LEAD_MS;
+
+  if (!active) {
+    return { active: false, firstKickoff, deadbeats: [] };
+  }
+
+  const members = await prisma.member.findMany({
+    orderBy: { sortOrder: "asc" },
+  });
+  const picks = await prisma.pick.findMany({
+    where: { weekId: week.id },
+    select: { memberId: true },
+  });
+  const picked = new Set(picks.map((p) => p.memberId));
+  const deadbeats = members
+    .filter((m) => !picked.has(m.id))
+    .map((m) => m.displayName);
+
+  return { active: true, firstKickoff, deadbeats };
 }
 
 export async function listWeeks(): Promise<Week[]> {

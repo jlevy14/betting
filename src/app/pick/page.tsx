@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Window, SiteHeader, Nav, FooterJunk, Alert } from "@/components/chrome";
+import { Window, SiteHeader, Nav, FooterJunk, Alert, ShameWall } from "@/components/chrome";
 import { StatusPill } from "@/components/status";
 import { loginLeague, logoutLeague, submitPick } from "../actions";
 import { hasAccess } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import {
   getOrCreateActiveWeek,
+  getShameInfo,
   weekMeta,
 } from "@/lib/league";
 import { getWeekPlayers, type WeekPlayer } from "@/lib/espn";
@@ -62,6 +63,7 @@ export default async function PickPage({
   }
 
   const week = await getOrCreateActiveWeek();
+  const shame = await getShameInfo(week);
   const members = await prisma.member.findMany({ orderBy: { sortOrder: "asc" } });
 
   // Remember returning managers: pre-select whoever this browser picked as last.
@@ -109,6 +111,8 @@ export default async function PickPage({
     <>
       <SiteHeader />
       <Nav active="pick" />
+
+      <ShameWall names={shame.deadbeats} />
 
       <Window title={`MAKE YOUR PICK - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\u270D"}>
         <Alert ok={ok} err={err} />

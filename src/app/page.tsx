@@ -4,6 +4,7 @@ import {
   CompactHeader,
   Nav,
   FooterJunk,
+  ShameWall,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
@@ -14,6 +15,7 @@ import {
   syncWeekLive,
   listWeeks,
   findWeek,
+  getShameInfo,
   LEAGUE_SIZE,
 } from "@/lib/league";
 import { centsToDollars, formatKickoff, weekLabel } from "@/lib/format";
@@ -50,17 +52,28 @@ export default async function BoardPage({
 
   const board = await getBoardData(week);
   const weeks = await listWeeks();
+  const shame = isArchive
+    ? { active: false, firstKickoff: null, deadbeats: [] }
+    : await getShameInfo(week);
 
   const remaining = LEAGUE_SIZE - board.picksMade;
 
   // Visit /?party=1 to preview the jackpot celebration any time.
   const partyPreview = sp.party != null;
 
+  // Visit /?shame=1 to preview the Wall of Shame with demo names.
+  const shameNames =
+    sp.shame != null && shame.deadbeats.length === 0
+      ? ["Kevin", "Danny", "Marcus"]
+      : shame.deadbeats;
+
   return (
     <div id="top">
       <JackpotCelebration active={board.jackpot || partyPreview} />
       <CompactHeader />
       <Nav active="board" />
+
+      <ShameWall names={shameNames} />
 
       <div className={`board-layout ${weeks.length > 1 ? "" : "no-aside"}`}>
         <main className="maincol">

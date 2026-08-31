@@ -64,6 +64,62 @@ export function SiteHeader() {
   );
 }
 
+// Heinous (but not hateful) roasts for people who haven't picked yet.
+const SHAME_INSULTS = [
+  "{name} is a spineless, mouth-breathing coward who's scared of a DROPDOWN.",
+  "Still nothing from {name}. Weak grip, weak mind, weak bloodline.",
+  "{name} would drop a wide-open touchdown and then blame the sun. PICK. NOW.",
+  "The league drags {name} around like dead weight every single week. Pathetic.",
+  "{name} folds under the pressure of ONE little click. Absolutely feeble.",
+  "BREAKING: {name} has the football IQ of a soggy gas-station napkin.",
+  "{name} is out here fumbling life itself. Make a pick, you gutless clown.",
+  "Everyone agrees {name} is the reason we can't have nice things.",
+  "{name} ghosts the parlay the same way they ghost every responsibility. Shameful.",
+  "{name}: always last, always sweating, always a bottom-feeder.",
+  "{name} couldn't find the 'MAKE A PICK' button with two hands and a flashlight.",
+  "History will remember {name} as the deadbeat who cost us the billion.",
+];
+
+function insultFor(name: string, seed: number): string {
+  let h = seed >>> 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return SHAME_INSULTS[h % SHAME_INSULTS.length].replace(
+    /\{name\}/g,
+    name.toUpperCase()
+  );
+}
+
+// The Wall of Shame: fires 8h before first kickoff, names + roasts everyone who
+// hasn't picked. Disappears per-person the moment they pick.
+export function ShameWall({ names }: { names: string[] }) {
+  if (!names || names.length === 0) return null;
+  const scroll = names
+    .map((n) => `\uD83D\uDCA9 ${n.toUpperCase()} STILL HASN'T PICKED \uD83D\uDCA9`)
+    .join(" \u2022 ");
+  return (
+    <div className="shame-wall">
+      <div className="shame-title blink">
+        &#128680;&#128680; WALL OF SHAME &#8212; PICK OR PERISH &#128680;&#128680;
+      </div>
+      <Marquee>
+        {scroll} &#8212; {scroll}
+      </Marquee>
+      <ul className="shame-list">
+        {names.map((n, i) => (
+          <li key={n}>
+            <span className="shame-name">{n.toUpperCase()}</span>{" "}
+            {insultFor(n, i * 2654435761)}
+          </li>
+        ))}
+      </ul>
+      <div className="shame-foot blink">
+        &#9888; {names.length} DEADBEAT{names.length === 1 ? "" : "S"} LEFT.
+        GO TO &ldquo;MAKE A PICK&rdquo; BEFORE KICKOFF OR STAY A COWARD FOREVER.
+      </div>
+    </div>
+  );
+}
+
 // Slimmer header for the board so the page fits on one screen. The loud
 // decorations live in the sidebar (SidebarJunk) instead of stacked up top.
 export function CompactHeader() {
