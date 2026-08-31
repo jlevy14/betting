@@ -168,14 +168,6 @@ export function FooterJunk() {
         &#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;
       </div>
 
-      <div className="badges">
-        <span className="badge ie">Best viewed in<br /><b>IE 6</b></span>
-        <span className="badge ns">Netscape<br /><b>NOW!</b></span>
-        <span className="badge html"><b>HTML</b><br />4 EVER</span>
-        <span className="badge notepad">Made with<br /><b>Notepad</b></span>
-        <span className="badge win"><b>Win98</b><br />approved</span>
-      </div>
-
       <div>
         You are visitor #{" "}
         <span className="counter">{visits.toLocaleString("en-US")}</span>{" "}
