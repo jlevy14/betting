@@ -585,10 +585,10 @@ marquee.bottom {
 
 .board-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 250px;
+  grid-template-columns: minmax(0, 1fr) 200px;
   gap: 12px;
   align-items: start;
-  max-width: 1080px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 .board-layout .window {
@@ -653,6 +653,30 @@ marquee.bottom {
 }
 .maincol .raised {
   padding: 6px;
+}
+
+/* when there is no archive sidebar, let the board own the full width */
+.board-layout.no-aside {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 1120px;
+}
+
+/* make the board the star: bigger text, compact rows so all 12 fit */
+.maincol table.board {
+  font-size: 15px;
+}
+.maincol table.board th {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+.maincol table.board td {
+  padding: 5px 8px;
+}
+.maincol .payout-amount {
+  font-size: 50px;
+}
+.maincol .legcount {
+  font-size: 22px;
 }
 
 @media (max-width: 820px) {

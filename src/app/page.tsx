@@ -3,7 +3,7 @@ import {
   Window,
   CompactHeader,
   Nav,
-  SidebarJunk,
+  FooterJunk,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
@@ -57,7 +57,7 @@ export default async function BoardPage({
       <CompactHeader />
       <Nav active="board" />
 
-      <div className="board-layout">
+      <div className={`board-layout ${weeks.length > 1 ? "" : "no-aside"}`}>
         <main className="maincol">
       <Window title={`THE BOARD - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\uD83D\uDCCA"}>
         {board.jackpot ? (
@@ -183,10 +183,8 @@ export default async function BoardPage({
       </Window>
         </main>
 
-        <aside className="sidebar">
-          <SidebarJunk />
-
-          {weeks.length > 1 ? (
+        {weeks.length > 1 ? (
+          <aside className="sidebar">
             <Window title="PAST WEEKS" icon={"\uD83D\uDCC1"}>
               <div className="center">
                 {weeks.map((wk) => {
@@ -204,14 +202,11 @@ export default async function BoardPage({
                 })}
               </div>
             </Window>
-          ) : null}
-        </aside>
+          </aside>
+        ) : null}
       </div>
 
-      <div className="slim-footer">
-        For entertainment only &#8212; not affiliated with the NFL or DraftKings
-        &#8212; stats via ESPN &#8212; gamble responsibly.
-      </div>
+      <FooterJunk />
     </div>
   );
 }

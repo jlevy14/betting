@@ -73,7 +73,6 @@ export function CompactHeader() {
         &#128176; ONE DOLLAR IN, A BILLION DOLLARS OUT (results DEFINITELY not
         guaranteed) &#128176; PICK A GUY. HE SCORES. WE EAT. &nbsp; GO GO GO!!!!
       </Marquee>
-      <div className="logo logo-compact shake">LETS MAKE A BILLION</div>
       <div className="tagline blink">
         &#9733;&#9733;&#9733; 12-Man $12 Anytime-TD Parlay Tracker &#9733;&#9733;&#9733;
       </div>
