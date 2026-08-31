@@ -10,6 +10,7 @@ import {
 } from "@/lib/league";
 import { getWeekPlayers, type WeekPlayer } from "@/lib/espn";
 import { formatKickoff, weekLabel } from "@/lib/format";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function PickPage({
           <div className="sunken">
             <p style={{ fontWeight: "bold" }}>
               &#128274; This area is for LEAGUE MEMBERS only. Type the secret
-              league password (ask the commissioner).
+              league password (ask the Head Gambler).
             </p>
             <form action={loginLeague}>
               <p>
@@ -62,6 +63,11 @@ export default async function PickPage({
 
   const week = await getOrCreateActiveWeek();
   const members = await prisma.member.findMany({ orderBy: { sortOrder: "asc" } });
+
+  // Remember returning managers: pre-select whoever this browser picked as last.
+  const cookieStore = await cookies();
+  const rememberedId = cookieStore.get("lmab_member")?.value ?? "";
+  const rememberedMember = members.find((m) => m.id === rememberedId);
   const picks = await prisma.pick.findMany({
     where: { weekId: week.id },
     include: { member: true },
@@ -107,6 +113,13 @@ export default async function PickPage({
       <Window title={`MAKE YOUR PICK - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\u270D"}>
         <Alert ok={ok} err={err} />
 
+        {rememberedMember ? (
+          <div className="alert ok">
+            &#128075; Welcome back, <b>{rememberedMember.displayName}</b>! We
+            pre-picked your name below &#8212; change it if that&apos;s not you.
+          </div>
+        ) : null}
+
         <div className="small center" style={{ marginBottom: 6 }}>
           logged in as a league member &nbsp;|&nbsp;{" "}
           <form action={logoutLeague} style={{ display: "inline" }}>
@@ -134,7 +147,7 @@ export default async function PickPage({
               <p>
                 <label>1) WHO ARE YOU?</label>
                 <br />
-                <select name="memberId" defaultValue="" required>
+                <select name="memberId" defaultValue={rememberedMember ? rememberedId : ""} required>
                   <option value="" disabled>
                     -- pick your name --
                   </option>
@@ -198,6 +211,7 @@ export default async function PickPage({
         {picks.length === 0 ? (
           <p>Nobody has picked yet. Be a legend, go first.</p>
         ) : (
+          <div className="scroll-x">
           <table className="board">
             <thead>
               <tr>
@@ -224,6 +238,7 @@ export default async function PickPage({
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         <p className="center" style={{ marginTop: 10 }}>

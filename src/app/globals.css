@@ -434,3 +434,231 @@ hr.fancy {
   color: #999;
   text-decoration: line-through;
 }
+
+/* ======================================================================
+   EXTRA OBNOXIOUS 2003 JUNK
+   ====================================================================== */
+
+/* twinkly starfield overlay on the teal desktop */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 70px, #ffff66, transparent),
+    radial-gradient(2px 2px at 160px 120px, #fff, transparent),
+    radial-gradient(1px 1px at 50px 160px, #99ffff, transparent),
+    radial-gradient(1px 1px at 200px 50px, #fff, transparent);
+  background-size: 220px 220px;
+  opacity: 0.5;
+  animation: twinkle 2s steps(2, start) infinite;
+}
+body > * {
+  position: relative;
+  z-index: 1;
+}
+@keyframes twinkle {
+  to {
+    opacity: 0.18;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  display: inline-block;
+  animation: spin 2.5s linear infinite;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px) rotate(-2deg); }
+  75% { transform: translateX(2px) rotate(2deg); }
+}
+.shake {
+  display: inline-block;
+  animation: shake 0.4s linear infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.bob {
+  display: inline-block;
+  animation: bob 1s ease-in-out infinite;
+}
+
+/* animated rainbow border box */
+@keyframes borderhue {
+  to { filter: hue-rotate(360deg); }
+}
+.rainbow-border {
+  border: 6px solid #ff0000;
+  border-image: repeating-linear-gradient(
+      45deg,
+      #ff0000, #ff8a00 10px, #fff700 20px, #00c400 30px, #0084ff 40px, #8a00ff 50px
+    ) 6;
+  animation: borderhue 4s linear infinite;
+  padding: 6px;
+}
+
+/* WordArt-ish section headers */
+.wordart {
+  text-align: center;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  background: linear-gradient(#00ffff, #0000ff 45%, #ff00ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #000;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  transform: skewX(-8deg);
+  margin: 10px 0;
+}
+
+/* cheesy 88x31 web badges */
+.badges {
+  text-align: center;
+  margin: 8px 0;
+  line-height: 2;
+}
+.badge {
+  display: inline-block;
+  width: 88px;
+  height: 31px;
+  line-height: 11px;
+  font-family: Tahoma, sans-serif;
+  font-size: 9px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  margin: 2px;
+  padding: 3px 2px;
+  border: 1px outset #999;
+  vertical-align: middle;
+  overflow: hidden;
+}
+.badge b { font-size: 11px; }
+.badge.ie { background: linear-gradient(#2a6cd4, #0a2a6c); }
+.badge.ns { background: linear-gradient(#111, #333); color: #6cf; }
+.badge.html { background: linear-gradient(#e44d26, #7a1f0c); }
+.badge.notepad { background: linear-gradient(#c0c0c0, #808080); color: #000; }
+.badge.win { background: linear-gradient(#008080, #004040); }
+
+.hotnew {
+  display: inline-block;
+  background: red;
+  color: #ff0;
+  font-family: Tahoma, sans-serif;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid #ff0;
+  transform: rotate(-8deg);
+}
+
+.flames {
+  font-size: 26px;
+  letter-spacing: 4px;
+}
+
+.guestbook {
+  text-align: center;
+  font-weight: bold;
+}
+
+marquee.bottom {
+  color: #00ff00;
+  background: #000080;
+  border-color: #00ffff;
+}
+
+/* ======================================================================
+   MOBILE (still ugly, just not broken)
+   ====================================================================== */
+
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 4px;
+    font-size: 14px;
+  }
+  .window {
+    padding: 2px;
+    box-shadow: 1px 1px 0 #000;
+  }
+  .window-body {
+    padding: 8px;
+  }
+  .logo {
+    font-size: 27px;
+    letter-spacing: -0.5px;
+    -webkit-text-stroke-width: 1px;
+    word-break: break-word;
+  }
+  .tagline {
+    font-size: 12px;
+  }
+  .wordart {
+    font-size: 19px;
+  }
+  .titlebar .title {
+    font-size: 12px;
+  }
+  .payout-amount {
+    font-size: 31px;
+    word-break: break-word;
+  }
+  .payout-share {
+    font-size: 16px;
+  }
+  .jackpot-banner {
+    font-size: 19px;
+  }
+  .dead {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+  .legcount {
+    font-size: 17px;
+    letter-spacing: 2px;
+  }
+  table.board {
+    font-size: 12px;
+  }
+  table.board th,
+  table.board td {
+    padding: 4px 5px;
+  }
+  .navbtn,
+  button.navbtn {
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 2px 1px;
+  }
+  .bigbtn {
+    font-size: 16px !important;
+    padding: 8px 14px !important;
+  }
+  select,
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    max-width: 100%;
+    width: 100%;
+  }
+  .flames {
+    font-size: 20px;
+  }
+}

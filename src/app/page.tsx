@@ -72,10 +72,15 @@ export default async function BoardPage({
         ) : null}
 
         {/* PAYOUT */}
+        <div className="rainbow-border">
         <div className="payout-box">
-          <div className="payout-label">IF THIS THING HITS WE WIN</div>
+          <div className="payout-label blink">
+            &#128176;&#128176; IF THIS THING HITS WE ALL WIN &#128176;&#128176;
+          </div>
           <div className={`payout-amount ${board.alive && !isArchive ? "blink" : ""}`}>
-            {board.payoutCents != null ? centsToDollars(board.payoutCents) : "$??????"}
+            <span className="spin">&#128176;</span>{" "}
+            {board.payoutCents != null ? centsToDollars(board.payoutCents) : "$??????"}{" "}
+            <span className="spin">&#128176;</span>
           </div>
           {board.perShareCents != null ? (
             <div className="payout-share">
@@ -83,7 +88,7 @@ export default async function BoardPage({
             </div>
           ) : (
             <div className="payout-share">
-              (commissioner hasn&apos;t placed the ticket yet)
+              (the Head Gambler hasn&apos;t placed the ticket yet)
             </div>
           )}
           {week.payoutCaption ? (
@@ -91,6 +96,7 @@ export default async function BoardPage({
               ticket: {week.payoutCaption}
             </div>
           ) : null}
+        </div>
         </div>
 
         {/* LEG THERMOMETER */}
@@ -125,7 +131,8 @@ export default async function BoardPage({
             </p>
           </div>
         ) : (
-          <table className="board" style={{ marginTop: 10 }}>
+          <div className="scroll-x" style={{ marginTop: 10 }}>
+          <table className="board">
             <thead>
               <tr>
                 <th>#</th>
@@ -162,11 +169,12 @@ export default async function BoardPage({
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         {board.earliestKickoff && !isArchive ? (
           <div className="center small" style={{ marginTop: 6 }}>
-            &#9201; commissioner: place the DraftKings ticket before{" "}
+            &#9201; Head Gambler: place the DraftKings ticket before{" "}
             <b>{formatKickoff(board.earliestKickoff)}</b> (earliest kickoff)
           </div>
         ) : null}

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import {
   checkPassword,
@@ -31,7 +32,7 @@ export async function loginLeague(formData: FormData): Promise<void> {
 export async function loginCommish(formData: FormData): Promise<void> {
   const pw = String(formData.get("password") ?? "");
   if (!checkPassword("commish", pw)) {
-    redirect("/admin?error=" + encodeURIComponent("Nope. Commissioner only."));
+    redirect("/admin?error=" + encodeURIComponent("Nope. Head Gambler only."));
   }
   await grantAccess("commish");
   redirect("/admin");
@@ -129,6 +130,14 @@ export async function submitPick(formData: FormData): Promise<void> {
     redirect("/pick?error=" + encodeURIComponent("Couldn't save that pick. Maybe it got taken?"));
   }
 
+  // Remember who this browser is, so we can pre-select them next visit.
+  const store = await cookies();
+  store.set("lmab_member", member!.id, {
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 180,
+  });
+
   revalidatePath("/");
   revalidatePath("/pick");
   redirect(
@@ -141,7 +150,7 @@ export async function submitPick(formData: FormData): Promise<void> {
 
 async function requireCommish(): Promise<void> {
   if (!(await hasAccess("commish"))) {
-    redirect("/admin?error=" + encodeURIComponent("Commissioner only."));
+    redirect("/admin?error=" + encodeURIComponent("Head Gambler only."));
   }
 }
 

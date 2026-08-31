@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Window, SiteHeader, Nav, FooterJunk, Alert } from "@/components/chrome";
-import { StatusPill } from "@/components/status";
+import "./admin.css";
 import {
   loginCommish,
   logoutCommish,
@@ -19,6 +18,16 @@ export const dynamic = "force-dynamic";
 
 type SP = { [key: string]: string | string[] | undefined };
 
+function Badge({ status }: { status: string }) {
+  const label: Record<string, string> = {
+    hit: "TD / Hit",
+    miss: "Miss",
+    live: "Playing",
+    pending: "Not started",
+  };
+  return <span className={`hg-badge ${status}`}>{label[status] ?? status}</span>;
+}
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -32,28 +41,29 @@ export default async function AdminPage({
 
   if (!authed) {
     return (
-      <>
-        <SiteHeader />
-        <Nav active="admin" />
-        <Window title="COMMISSIONER LOGIN" icon={"\uD83D\uDC51"}>
-          <Alert ok={ok} err={err} />
-          <div className="sunken">
-            <p style={{ fontWeight: "bold" }}>
-              &#128081; This is the commissioner control panel. Members can&apos;t
-              come back here.
-            </p>
+      <div className="adminpage">
+        <div className="hg-login">
+          <div className="hg-topbar" style={{ borderRadius: "16px 16px 0 0", marginBottom: 0 }}>
+            <div>
+              <h1>&#127920; Head Gambler</h1>
+              <div className="sub">Restricted console</div>
+            </div>
+          </div>
+          <div className="hg-card" style={{ borderRadius: "0 0 16px 16px" }}>
+            {err ? <div className="hg-alert err">{err}</div> : null}
+            {ok ? <div className="hg-alert ok">{ok}</div> : null}
+            <p className="help">Enter the Head Gambler password to manage the league.</p>
             <form action={loginCommish}>
-              <p>
-                <label>Commissioner Password:&nbsp;</label>
-                <input type="password" name="password" autoFocus />
-                &nbsp;
-                <button type="submit" className="bigbtn">ENTER &raquo;</button>
-              </p>
+              <div className="hg-field">
+                <label>Password</label>
+                <input type="password" name="password" autoFocus placeholder="Head Gambler password" />
+              </div>
+              <button type="submit">Sign in</button>
+              <Link href="/" style={{ marginLeft: 12 }}>Back to the site</Link>
             </form>
           </div>
-        </Window>
-        <FooterJunk />
-      </>
+        </div>
+      </div>
     );
   }
 
@@ -62,185 +72,188 @@ export default async function AdminPage({
   const board = await getBoardData(week);
 
   return (
-    <>
-      <SiteHeader />
-      <Nav active="admin" />
-
-      <Window title={`COMMISSIONER PANEL - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\uD83D\uDC51"}>
-        <Alert ok={ok} err={err} />
-        <div className="small center" style={{ marginBottom: 6 }}>
-          <form action={logoutCommish} style={{ display: "inline" }}>
-            <button type="submit" style={{ padding: "1px 6px", fontSize: 11 }}>
-              log out
-            </button>
+    <div className="adminpage">
+      <div className="hg-topbar">
+        <div>
+          <h1>&#127920; Head Gambler Console</h1>
+          <div className="sub">
+            {weekLabel(week.season, week.seasonType, week.weekNum)} &middot;{" "}
+            {board.picksMade}/{members.length} picks in
+          </div>
+        </div>
+        <div className="hg-actions">
+          <Link href="/" style={{ color: "#e5e7eb" }}>
+            View public board &#8599;
+          </Link>
+          <form action={logoutCommish}>
+            <button type="submit" className="btn-ghost btn-sm">Log out</button>
           </form>
         </div>
+      </div>
 
-        {/* PAYOUT */}
-        <div className="raised" style={{ marginBottom: 10 }}>
-          <h3 style={{ marginTop: 0, fontFamily: "Tahoma", color: "#000080" }}>
-            &#128176; DRAFTKINGS PAYOUT
-          </h3>
-          <p className="small">
-            After you place the $12 / 12-leg anytime-TD parlay, type the total
-            &quot;To Win&quot; amount here. Each of the {members.length} managers
-            gets an equal share.
-          </p>
-          <form action={adminSetPayout}>
-            <p>
-              <label>Total to win ($):&nbsp;</label>
+      {ok ? <div className="hg-alert ok">{ok}</div> : null}
+      {err ? <div className="hg-alert err">{err}</div> : null}
+
+      {/* PAYOUT */}
+      <div className="hg-card">
+        <h2>&#128181; DraftKings payout</h2>
+        <p className="help">
+          After you place the $12 / 12-leg anytime-TD parlay, enter the total
+          &ldquo;To Win&rdquo; amount. Each of the {members.length} managers gets an
+          equal share.
+        </p>
+        <form action={adminSetPayout}>
+          <div className="hg-grid2">
+            <div className="hg-field">
+              <label>Total to win ($)</label>
               <input
                 type="text"
                 name="payout"
                 placeholder="e.g. 48372.44"
                 defaultValue={
-                  week.dkPayoutCents != null
-                    ? (week.dkPayoutCents / 100).toFixed(2)
-                    : ""
+                  week.dkPayoutCents != null ? (week.dkPayoutCents / 100).toFixed(2) : ""
                 }
               />
               {week.dkPayoutCents != null ? (
-                <span className="small">
-                  {" "}
-                  = {centsToDollars(week.dkPayoutCents)} total /{" "}
+                <div className="hg-hint">
+                  {centsToDollars(week.dkPayoutCents)} total &middot;{" "}
                   {centsToDollars(Math.round(week.dkPayoutCents / members.length))} each
-                </span>
+                </div>
               ) : null}
-            </p>
-            <p>
-              <label>Ticket caption (optional):&nbsp;</label>
+            </div>
+            <div className="hg-field">
+              <label>Ticket caption (optional)</label>
               <input
                 type="text"
                 name="caption"
                 placeholder="e.g. +4030300 odds"
                 defaultValue={week.payoutCaption ?? ""}
-                size={30}
               />
-            </p>
-            <p>
-              <label>Notes (optional):&nbsp;</label>
-              <br />
-              <textarea name="notes" rows={2} cols={50} defaultValue={week.notes ?? ""} />
-            </p>
-            <p>
-              <button type="submit" className="bigbtn">SAVE PAYOUT</button>
-            </p>
-          </form>
-        </div>
+            </div>
+          </div>
+          <div className="hg-field">
+            <label>Notes (optional)</label>
+            <textarea name="notes" rows={2} defaultValue={week.notes ?? ""} />
+          </div>
+          <button type="submit">Save payout</button>
+        </form>
+      </div>
 
-        {/* SYNC */}
-        <div className="raised" style={{ marginBottom: 10 }}>
-          <h3 style={{ marginTop: 0, fontFamily: "Tahoma", color: "#000080" }}>
-            &#128260; LIVE STATS
-          </h3>
-          <p className="small">
-            Stats refresh automatically, but you can force a pull from ESPN right
-            now. Current: {board.hits} hit / {board.misses} miss / {board.live}{" "}
-            playing / {board.pending} not started.
-          </p>
-          <form action={adminSyncNow}>
-            <button type="submit">SYNC WITH ESPN NOW</button>
-          </form>
+      {/* LIVE STATS */}
+      <div className="hg-card">
+        <h2>&#128202; Live stats</h2>
+        <p className="help">
+          The public board auto-updates every 5 minutes. Force a fresh pull from
+          ESPN anytime.
+        </p>
+        <div className="hg-stats">
+          <div className="hg-stat hit">
+            <div className="n">{board.hits}</div>
+            <div className="l">Hit</div>
+          </div>
+          <div className="hg-stat miss">
+            <div className="n">{board.misses}</div>
+            <div className="l">Miss</div>
+          </div>
+          <div className="hg-stat live">
+            <div className="n">{board.live}</div>
+            <div className="l">Playing</div>
+          </div>
+          <div className="hg-stat">
+            <div className="n">{board.pending}</div>
+            <div className="l">Not started</div>
+          </div>
         </div>
+        <form action={adminSyncNow}>
+          <button type="submit" className="btn-secondary">Sync with ESPN now</button>
+        </form>
+      </div>
 
-        {/* OVERRIDES */}
-        <div className="raised" style={{ marginBottom: 10 }}>
-          <h3 style={{ marginTop: 0, fontFamily: "Tahoma", color: "#000080" }}>
-            &#9997; FIX A LEG (manual override)
-          </h3>
-          <p className="small">
-            Use this only if ESPN is wrong or someone fat-fingered a pick.
-            Setting a status manually stops the auto-sync from changing it (marked
-            with *). &quot;AUTO&quot; hands it back to ESPN.
-          </p>
-          {board.picks.length === 0 ? (
-            <p>No picks yet this week.</p>
-          ) : (
-            <table className="board">
+      {/* OVERRIDES */}
+      <div className="hg-card">
+        <h2>&#9998; Picks &amp; manual overrides</h2>
+        <p className="help">
+          Use overrides only if ESPN is wrong or someone fat-fingered a pick.
+          Setting a status manually stops auto-sync from changing it; choose
+          &ldquo;Auto&rdquo; to hand it back to ESPN.
+        </p>
+        {board.picks.length === 0 ? (
+          <p className="hg-muted">No picks yet this week.</p>
+        ) : (
+          <div className="hg-scroll">
+            <table className="hg-table">
               <thead>
                 <tr>
-                  <th>MANAGER</th>
-                  <th>PLAYER</th>
-                  <th>KICKOFF</th>
-                  <th>STATUS</th>
-                  <th>SET</th>
-                  <th>CLEAR</th>
+                  <th>Manager</th>
+                  <th>Player</th>
+                  <th>Kickoff</th>
+                  <th>Status</th>
+                  <th>Set</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {board.picks.map((p) => (
                   <tr key={p.id}>
-                    <td style={{ fontWeight: "bold" }}>{p.member.displayName}</td>
+                    <td style={{ fontWeight: 600 }}>{p.member.displayName}</td>
                     <td>
                       {p.playerName}{" "}
-                      <span className="small">
-                        ({p.position} {p.nflTeam})
+                      <span className="hg-muted">
+                        {p.position} &middot; {p.nflTeam}
                       </span>
                     </td>
-                    <td className="small">{formatKickoff(p.kickoffAt)}</td>
+                    <td className="hg-muted">{formatKickoff(p.kickoffAt)}</td>
                     <td>
-                      <StatusPill status={p.status} />
-                      {p.isManual ? " *" : ""}
+                      <Badge status={p.status} />
+                      {p.isManual ? <span className="hg-muted"> (manual)</span> : null}
                     </td>
                     <td>
-                      <form action={adminOverridePick} style={{ display: "flex", gap: 2 }}>
+                      <form action={adminOverridePick} className="hg-row-actions">
                         <input type="hidden" name="pickId" value={p.id} />
-                        <select name="status" defaultValue="">
-                          <option value="" disabled>
-                            set...
-                          </option>
-                          <option value="hit">HIT</option>
-                          <option value="miss">MISS</option>
-                          <option value="live">PLAYING</option>
-                          <option value="pending">NOT STARTED</option>
-                          <option value="auto">AUTO (ESPN)</option>
+                        <select name="status" defaultValue="" className="btn-sm" style={{ width: "auto" }}>
+                          <option value="" disabled>Set…</option>
+                          <option value="hit">Hit</option>
+                          <option value="miss">Miss</option>
+                          <option value="live">Playing</option>
+                          <option value="pending">Not started</option>
+                          <option value="auto">Auto (ESPN)</option>
                         </select>
-                        <button type="submit">GO</button>
+                        <button type="submit" className="btn-secondary btn-sm">Apply</button>
                       </form>
                     </td>
                     <td>
                       <form action={adminClearPick}>
                         <input type="hidden" name="pickId" value={p.id} />
-                        <button type="submit">X</button>
+                        <button type="submit" className="btn-danger btn-sm">Clear</button>
                       </form>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        {/* NAMES */}
-        <div className="raised">
-          <h3 style={{ marginTop: 0, fontFamily: "Tahoma", color: "#000080" }}>
-            &#128100; LEAGUE MEMBER NAMES
-          </h3>
-          <p className="small">
-            Rename the {members.length} managers. These show up in the name
-            dropdown on the pick page and on the board.
-          </p>
-          <form action={adminSetNames}>
-            {members.map((m, i) => (
-              <p key={m.id} style={{ margin: "3px 0" }}>
-                <label>#{i + 1}:&nbsp;</label>
-                <input type="text" name={`name_${m.id}`} defaultValue={m.displayName} size={24} />
-              </p>
-            ))}
-            <p>
-              <button type="submit" className="bigbtn">SAVE NAMES</button>
-            </p>
-          </form>
-        </div>
-
-        <p className="center" style={{ marginTop: 10 }}>
-          <Link className="navbtn" href="/">
-            &laquo; BACK TO THE BOARD
-          </Link>
+      {/* NAMES */}
+      <div className="hg-card">
+        <h2>&#128100; League members</h2>
+        <p className="help">
+          Rename the {members.length} managers. These appear in the pick dropdown
+          and on the public board.
         </p>
-      </Window>
-
-      <FooterJunk />
-    </>
+        <form action={adminSetNames}>
+          <div className="names-grid">
+            {members.map((m, i) => (
+              <div className="hg-field" key={m.id} style={{ marginBottom: 4 }}>
+                <label>Manager {i + 1}</label>
+                <input type="text" name={`name_${m.id}`} defaultValue={m.displayName} />
+              </div>
+            ))}
+          </div>
+          <button type="submit" style={{ marginTop: 12 }}>Save names</button>
+        </form>
+      </div>
+    </div>
   );
 }
