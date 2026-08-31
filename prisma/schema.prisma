@@ -1,0 +1,65 @@
+// LETS MAKE A BILLION - database schema (Supabase Postgres)
+//
+// DATABASE_URL = Supabase "Transaction" pooler (port 6543, ?pgbouncer=true)
+//                -> used by the app at runtime (works on Vercel / IPv4).
+// DIRECT_URL   = Supabase "Session" pooler (port 5432)
+//                -> used by `prisma db push` / migrations.
+// Grab both from Supabase: Project -> Connect -> ORMs -> Prisma. See README.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Member {
+  id          String   @id @default(cuid())
+  displayName String   @unique
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  picks       Pick[]
+}
+
+model Week {
+  id            String   @id @default(cuid())
+  season        Int
+  seasonType    Int      @default(2) // 1=pre, 2=regular, 3=post
+  weekNum       Int
+  label         String   @default("")
+  dkPayoutCents Int? // total DraftKings "to win", null until commissioner enters it
+  payoutCaption String? // optional caption, e.g. "+$48,372.44"
+  notes         String?
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  picks         Pick[]
+
+  @@unique([season, seasonType, weekNum])
+}
+
+model Pick {
+  id             String   @id @default(cuid())
+  week           Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  weekId         String
+  member         Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId       String
+  espnAthleteId  String
+  playerName     String
+  position       String   @default("")
+  nflTeam        String   @default("") // team abbrev the player is on
+  opponent       String   @default("") // opponent abbrev
+  espnEventId    String   @default("")
+  kickoffAt      DateTime
+  status         String   @default("pending") // pending | live | hit | miss
+  gameState      String   @default("pre") // pre | in | post
+  scoredTds      Int      @default(0)
+  isManual       Boolean  @default(false) // true = commissioner override, live sync leaves it alone
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([weekId, memberId])
+  @@unique([weekId, espnAthleteId])
+}

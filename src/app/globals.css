@@ -1,0 +1,436 @@
+/* ======================================================================
+   LETS MAKE A BILLION - stylesheet
+   Aesthetic goal: a Windows 98/XP "webpage" a 12-year-old made in Notepad
+   in 2003. This ugliness is 100% on purpose. Do not "clean it up".
+   ====================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Comic Sans MS", "Comic Sans", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+  color: #000080;
+  /* Classic teal desktop + a cheap tiled "texture" made of gradients. */
+  background-color: #008080;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.06) 0px,
+      rgba(255, 255, 255, 0.06) 2px,
+      transparent 2px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.06) 0px,
+      rgba(0, 0, 0, 0.06) 2px,
+      transparent 2px,
+      transparent 8px
+    );
+  padding: 8px;
+}
+
+a {
+  color: #0000ee;
+}
+a:visited {
+  color: #551a8b;
+}
+
+/* ---- fake window chrome (win98/xp classic) ---- */
+.window {
+  background: #c0c0c0;
+  border: 3px solid #c0c0c0;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  box-shadow: 2px 2px 0 #000000;
+  margin: 0 auto 14px auto;
+  max-width: 1000px;
+  padding: 3px;
+}
+
+.titlebar {
+  background: linear-gradient(90deg, #000080 0%, #1084d0 60%, #38a7f0 100%);
+  color: #ffffff;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, sans-serif;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-shadow: 1px 1px 0 #000000;
+  letter-spacing: 0.3px;
+}
+.titlebar .title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.titlebar .buttons span {
+  display: inline-block;
+  width: 18px;
+  height: 16px;
+  line-height: 14px;
+  text-align: center;
+  margin-left: 2px;
+  background: #c0c0c0;
+  color: #000;
+  border: 2px solid #c0c0c0;
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  font-family: "Marlett", Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+.window-body {
+  padding: 12px;
+  background: #c0c0c0;
+}
+
+/* ---- generic 3D panels ---- */
+.sunken {
+  border: 2px solid #808080;
+  border-top-color: #404040;
+  border-left-color: #404040;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  background: #ffffff;
+  padding: 8px;
+}
+.raised {
+  border: 2px solid #808080;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  background: #c0c0c0;
+  padding: 8px;
+}
+
+/* ---- the big dumb site logo ---- */
+.logo {
+  text-align: center;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-weight: 900;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin: 4px 0 2px 0;
+  background: linear-gradient(#fff700, #ff8a00 50%, #d40000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 2px #000080;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+.tagline {
+  text-align: center;
+  font-style: italic;
+  color: #ff0000;
+  font-weight: bold;
+}
+
+/* ---- navigation ---- */
+.navbar {
+  text-align: center;
+  margin: 8px 0;
+}
+.navbtn,
+button.navbtn {
+  display: inline-block;
+  background: #c0c0c0;
+  border: 2px solid #808080;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  color: #000080;
+  font-family: Tahoma, sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 4px 12px;
+  margin: 2px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.navbtn:active {
+  border-top-color: #404040;
+  border-left-color: #404040;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+/* ---- marquee text ---- */
+marquee {
+  color: #ffff00;
+  background: #000000;
+  font-weight: bold;
+  padding: 4px 0;
+  border: 2px ridge #ffcc00;
+}
+
+/* ---- the payout blinker ---- */
+.blink {
+  animation: blinker 1s steps(2, start) infinite;
+}
+@keyframes blinker {
+  to {
+    visibility: hidden;
+  }
+}
+
+.rainbow {
+  animation: rainbow 3s linear infinite;
+}
+@keyframes rainbow {
+  0% { color: #ff0000; }
+  16% { color: #ff8a00; }
+  33% { color: #fff700; }
+  50% { color: #00c400; }
+  66% { color: #0084ff; }
+  83% { color: #8a00ff; }
+  100% { color: #ff0000; }
+}
+
+.jackpot-banner {
+  text-align: center;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 34px;
+  color: #ffff00;
+  background: #000;
+  border: 4px dashed #00ff00;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+.payout-box {
+  text-align: center;
+  background: #000000;
+  border: 4px ridge #ffcc00;
+  padding: 10px;
+  margin: 8px 0;
+}
+.payout-amount {
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 52px;
+  color: #00ff00;
+  text-shadow: 0 0 8px #00ff00;
+}
+.payout-share {
+  color: #ffff00;
+  font-size: 20px;
+  font-weight: bold;
+}
+.payout-label {
+  color: #ff5555;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+/* ---- the board table ---- */
+table.board {
+  border-collapse: collapse;
+  width: 100%;
+  background: #ffffff;
+  font-family: Tahoma, Verdana, sans-serif;
+  font-size: 13px;
+}
+table.board th {
+  background: #000080;
+  color: #ffff00;
+  border: 2px outset #c0c0c0;
+  padding: 5px 6px;
+  text-align: left;
+}
+table.board td {
+  border: 1px solid #808080;
+  padding: 5px 6px;
+  color: #000000;
+}
+table.board tr:nth-child(even) td {
+  background: #ffffcc;
+}
+table.board tr:nth-child(odd) td {
+  background: #e0f0ff;
+}
+
+/* status pills */
+.pill {
+  display: inline-block;
+  font-family: Tahoma, sans-serif;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 2px outset #999;
+  white-space: nowrap;
+}
+.pill.hit {
+  background: #007a00;
+  color: #7dff7d;
+}
+.pill.miss {
+  background: #8b0000;
+  color: #ffcccc;
+}
+.pill.live {
+  background: #000;
+  color: #00ff00;
+}
+.pill.pending {
+  background: #d0d0d0;
+  color: #333;
+}
+
+.dead {
+  text-align: center;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 40px;
+  color: #ff0000;
+  background: #000;
+  border: 4px dashed #ff0000;
+  padding: 10px;
+  margin: 8px 0;
+  letter-spacing: 3px;
+}
+
+/* progress "thermometer" */
+.legcount {
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: #000080;
+}
+.legcount .hitdot { color: #007a00; }
+.legcount .missdot { color: #b00000; }
+.legcount .livedot { color: #ff8a00; }
+.legcount .pendingdot { color: #808080; }
+
+/* ---- forms ---- */
+label {
+  font-family: Tahoma, sans-serif;
+  font-weight: bold;
+  color: #000080;
+}
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+  font-family: Tahoma, sans-serif;
+  font-size: 14px;
+  border: 2px solid #808080;
+  border-top-color: #404040;
+  border-left-color: #404040;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  background: #ffffff;
+  padding: 4px;
+}
+select {
+  max-width: 100%;
+}
+button,
+input[type="submit"] {
+  font-family: Tahoma, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  background: #c0c0c0;
+  border: 2px solid #808080;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  color: #000;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+button:active,
+input[type="submit"]:active {
+  border-top-color: #404040;
+  border-left-color: #404040;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+.bigbtn {
+  font-size: 18px !important;
+  padding: 8px 22px !important;
+}
+
+/* ---- alerts ---- */
+.alert {
+  border: 3px double #000;
+  padding: 8px;
+  margin: 8px 0;
+  font-weight: bold;
+  text-align: center;
+}
+.alert.ok {
+  background: #d7ffd7;
+  color: #006400;
+}
+.alert.err {
+  background: #ffd7d7;
+  color: #8b0000;
+}
+
+/* ---- footer junk ---- */
+.footer-junk {
+  text-align: center;
+  color: #ffffff;
+  font-size: 12px;
+  text-shadow: 1px 1px 0 #000;
+  margin: 10px 0;
+  line-height: 1.7;
+}
+.counter {
+  display: inline-block;
+  background: #000;
+  color: #00ff00;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  padding: 2px 6px;
+  border: 2px inset #666;
+  letter-spacing: 3px;
+}
+.construction {
+  color: #ffff00;
+  font-weight: bold;
+}
+
+hr.fancy {
+  border: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ff0000 0 10px,
+    #ffff00 10px 20px,
+    #00ff00 20px 30px,
+    #0000ff 30px 40px
+  );
+  margin: 10px 0;
+}
+
+.small {
+  font-size: 11px;
+  color: #333;
+}
+.center {
+  text-align: center;
+}
+.taken {
+  color: #999;
+  text-decoration: line-through;
+}
