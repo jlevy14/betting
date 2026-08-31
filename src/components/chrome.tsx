@@ -64,6 +64,78 @@ export function SiteHeader() {
   );
 }
 
+// Slimmer header for the board so the page fits on one screen. The loud
+// decorations live in the sidebar (SidebarJunk) instead of stacked up top.
+export function CompactHeader() {
+  return (
+    <>
+      <Marquee>
+        &#128176; ONE DOLLAR IN, A BILLION DOLLARS OUT (results DEFINITELY not
+        guaranteed) &#128176; PICK A GUY. HE SCORES. WE EAT. &nbsp; GO GO GO!!!!
+      </Marquee>
+      <div className="logo logo-compact shake">LETS MAKE A BILLION</div>
+      <div className="tagline blink">
+        &#9733;&#9733;&#9733; 12-Man $12 Anytime-TD Parlay Tracker &#9733;&#9733;&#9733;
+      </div>
+    </>
+  );
+}
+
+// All the obnoxious 2003 junk, packed into the sidebar column.
+export function SidebarJunk() {
+  const visits = 1_000_000 - 12;
+  return (
+    <div className="window">
+      <div className="titlebar">
+        <span className="title">
+          <span aria-hidden>{"\uD83C\uDFC8"}</span> EXTRAS.EXE
+        </span>
+        <span className="buttons">
+          <span>_</span>
+          <span>&times;</span>
+        </span>
+      </div>
+      <div className="window-body sidebar-body">
+        <div className="center" style={{ marginBottom: 4 }}>
+          <span className="spin" style={{ fontSize: 26 }}>&#127944;</span>
+          <span className="hotnew blink">HOT!</span>
+          <span className="bob" style={{ fontSize: 22 }}>&#128176;</span>
+          <span className="hotnew" style={{ transform: "rotate(8deg)" }}>NEW!</span>
+        </div>
+        <div className="center flames">&#128293;&#128293;&#128293;&#128293;&#128293;</div>
+
+        <div className="badges">
+          <span className="badge ie">Best viewed in<br /><b>IE 6</b></span>
+          <span className="badge ns">Netscape<br /><b>NOW!</b></span>
+          <span className="badge html"><b>HTML</b><br />4 EVER</span>
+          <span className="badge notepad">Made with<br /><b>Notepad</b></span>
+        </div>
+
+        <div className="center" style={{ margin: "6px 0" }}>
+          Visitor #<br />
+          <span className="counter">{visits.toLocaleString("en-US")}</span>
+        </div>
+
+        <div className="guestbook center">
+          <span className="bob" style={{ fontSize: 18 }}>&#9997;</span>{" "}
+          <a href="#guestbook">SIGN GUESTBOOK</a>
+          <br />
+          <a href="#webring">&laquo; PARLAY WEBRING &raquo;</a>
+        </div>
+
+        <div className="construction blink center" style={{ marginTop: 6 }}>
+          &#9888; UNDER CONSTRUCTION &#9888;
+        </div>
+        <div className="center small" style={{ marginTop: 6 }}>
+          &#169; {new Date().getFullYear()} letsmakeabillion.com
+          <br />
+          Made with Notepad &#10084; Powered by VIBES
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Nav({ active }: { active: "board" | "pick" | "admin" }) {
   return (
     <div className="navbar">

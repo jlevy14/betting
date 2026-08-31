@@ -1,9 +1,9 @@
 import Link from "next/link";
 import {
   Window,
-  SiteHeader,
+  CompactHeader,
   Nav,
-  FooterJunk,
+  SidebarJunk,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
@@ -53,10 +53,12 @@ export default async function BoardPage({
   const remaining = LEAGUE_SIZE - board.picksMade;
 
   return (
-    <>
-      <SiteHeader />
+    <div id="top">
+      <CompactHeader />
       <Nav active="board" />
 
+      <div className="board-layout">
+        <main className="maincol">
       <Window title={`THE BOARD - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\uD83D\uDCCA"}>
         {board.jackpot ? (
           <div className="jackpot-banner blink">
@@ -179,29 +181,37 @@ export default async function BoardPage({
           </div>
         ) : null}
       </Window>
+        </main>
 
-      {/* WEEK ARCHIVE */}
-      {weeks.length > 1 ? (
-        <Window title="PAST WEEKS (our glorious history)" icon={"\uD83D\uDCC1"}>
-          <div className="center">
-            {weeks.map((wk) => {
-              const isCurrent = wk.id === week.id;
-              return (
-                <Link
-                  key={wk.id}
-                  className="navbtn"
-                  href={`/?season=${wk.season}&st=${wk.seasonType}&w=${wk.weekNum}`}
-                  style={isCurrent ? { background: "#ffff99", textDecoration: "underline" } : undefined}
-                >
-                  {weekLabel(wk.season, wk.seasonType, wk.weekNum)}
-                </Link>
-              );
-            })}
-          </div>
-        </Window>
-      ) : null}
+        <aside className="sidebar">
+          <SidebarJunk />
 
-      <FooterJunk />
-    </>
+          {weeks.length > 1 ? (
+            <Window title="PAST WEEKS" icon={"\uD83D\uDCC1"}>
+              <div className="center">
+                {weeks.map((wk) => {
+                  const isCurrent = wk.id === week.id;
+                  return (
+                    <Link
+                      key={wk.id}
+                      className="navbtn"
+                      href={`/?season=${wk.season}&st=${wk.seasonType}&w=${wk.weekNum}`}
+                      style={isCurrent ? { background: "#ffff99", textDecoration: "underline" } : undefined}
+                    >
+                      {weekLabel(wk.season, wk.seasonType, wk.weekNum)}
+                    </Link>
+                  );
+                })}
+              </div>
+            </Window>
+          ) : null}
+        </aside>
+      </div>
+
+      <div className="slim-footer">
+        For entertainment only &#8212; not affiliated with the NFL or DraftKings
+        &#8212; stats via ESPN &#8212; gamble responsibly.
+      </div>
+    </div>
   );
 }
