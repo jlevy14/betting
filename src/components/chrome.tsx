@@ -47,7 +47,7 @@ export function SiteHeader() {
         <span className="hotnew" style={{ transform: "rotate(8deg)" }}>NEW!</span>
         <span className="spin" style={{ fontSize: 30 }}>&#127944;</span>
       </div>
-      <div className="logo shake">LETS MAKE A BILLION</div>
+      <div className="logo shake">LETS WIN A BILLION</div>
       <div className="tagline blink">
         &#9733;&#9733;&#9733; The Official 12-Man $12 Anytime-TD Parlay Tracker &#9733;&#9733;&#9733;
       </div>
@@ -74,7 +74,7 @@ export function CompactHeader() {
         guaranteed) &#128176; PICK A GUY. HE SCORES. WE EAT. &nbsp; GO GO GO!!!!
       </Marquee>
       <div className="tagline blink">
-        &#9733;&#9733;&#9733; 12-Man $12 Anytime-TD Parlay Tracker &#9733;&#9733;&#9733;
+        &#9733;&#9733;&#9733; LETS WIN A BILLION &#8212; 12-Man $12 Anytime-TD Parlay Tracker &#9733;&#9733;&#9733;
       </div>
     </>
   );
@@ -126,7 +126,7 @@ export function SidebarJunk() {
           &#9888; UNDER CONSTRUCTION &#9888;
         </div>
         <div className="center small" style={{ marginTop: 6 }}>
-          &#169; {new Date().getFullYear()} letsmakeabillion.com
+          &#169; {new Date().getFullYear()} letswinabillion.com
           <br />
           Made with Notepad &#10084; Powered by VIBES
         </div>
@@ -190,7 +190,7 @@ export function FooterJunk() {
       </div>
 
       <div>Best viewed in Internet Explorer 6 at 1024&times;768</div>
-      <div>&#169; {new Date().getFullYear()} letsmakeabillion.com &#8212; Made with Notepad &#10084; &#8212; Powered by VIBES</div>
+      <div>&#169; {new Date().getFullYear()} letswinabillion.com &#8212; Made with Notepad &#10084; &#8212; Powered by VIBES</div>
       <div className="small">
         For entertainment only. We do not place bets for you and this is not
         affiliated with the NFL or DraftKings. Stats via ESPN. Please gamble
