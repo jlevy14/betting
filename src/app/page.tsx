@@ -7,6 +7,7 @@ import {
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
+import { JackpotCelebration } from "./jackpot";
 import {
   getOrCreateActiveWeek,
   getBoardData,
@@ -52,8 +53,12 @@ export default async function BoardPage({
 
   const remaining = LEAGUE_SIZE - board.picksMade;
 
+  // Visit /?party=1 to preview the jackpot celebration any time.
+  const partyPreview = sp.party != null;
+
   return (
     <div id="top">
+      <JackpotCelebration active={board.jackpot || partyPreview} />
       <CompactHeader />
       <Nav active="board" />
 

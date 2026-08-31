@@ -580,6 +580,118 @@ marquee.bottom {
 }
 
 /* ======================================================================
+   JACKPOT CELEBRATION (fires when all 12 legs hit) -- gloriously obnoxious
+   ====================================================================== */
+@keyframes moneyfall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+  }
+  100% {
+    transform: translateY(114vh) rotate(720deg);
+  }
+}
+@keyframes fireburst {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes bgflash {
+  0% {
+    background: #ff0000;
+  }
+  16% {
+    background: #ff9900;
+  }
+  33% {
+    background: #ffff00;
+  }
+  50% {
+    background: #00cc00;
+  }
+  66% {
+    background: #0099ff;
+  }
+  83% {
+    background: #cc00ff;
+  }
+  100% {
+    background: #ff0000;
+  }
+}
+@keyframes celebshake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-5px, 3px) rotate(-1deg);
+  }
+  40% {
+    transform: translate(5px, -3px) rotate(1deg);
+  }
+  60% {
+    transform: translate(-3px, -3px) rotate(0.6deg);
+  }
+  80% {
+    transform: translate(3px, 3px) rotate(-0.6deg);
+  }
+}
+
+.jackpot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+.jackpot-overlay .drop {
+  position: absolute;
+  top: -12vh;
+  animation-name: moneyfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.jackpot-overlay .firework {
+  position: absolute;
+  animation: fireburst 1s ease-out forwards;
+  will-change: transform, opacity;
+}
+.jackpot-megatext {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 10px;
+  z-index: 10000;
+  text-align: center;
+  pointer-events: none;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 44px;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 0 8px #ffff00, 0 0 16px #ff00ff, 0 0 26px #00ffff;
+  animation: blinker 0.4s steps(2, start) infinite;
+}
+body.jackpot-mode {
+  animation: bgflash 0.5s linear infinite;
+}
+body.jackpot-mode #top {
+  animation: celebshake 0.35s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  .jackpot-megatext {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+}
+
+/* ======================================================================
    BOARD TWO-COLUMN LAYOUT (fit on one screen; junk goes to the sidebar)
    ====================================================================== */
 
