@@ -58,6 +58,44 @@ type CacheEntry = { at: number; value: unknown };
 const memCache = new Map<string, CacheEntry>();
 const inflight = new Map<string, Promise<unknown>>();
 
+// ESPN's endpoints sit behind Akamai, which occasionally answers a perfectly
+// valid request with a transient "Access Denied" (bot-protection flakiness)
+// even when nothing is actually wrong with the request. A single one of these
+// on the weekly scoreboard call used to be enough to zero out every game (and
+// therefore every player) for the whole site, blocking managers from picking.
+// We retry a couple of times before giving up.
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 300;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchOnce<T>(url: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      // Deliberately no "user-agent" override here. ESPN's Akamai bot
+      // protection blocks requests whose User-Agent claims to be Chrome but
+      // whose TLS/HTTP fingerprint doesn't match real Chrome (which is
+      // exactly what a server-side fetch looks like) - it reliably 403s a
+      // spoofed Chrome UA while happily serving requests with no UA override
+      // or a non-browser one. Do not "fix" this by re-adding a browser UA.
+      headers: {
+        accept: "application/json, text/plain, */*",
+      },
+    });
+    if (!res.ok) {
+      console.error("[espn] non-ok", res.status, url);
+      return null;
+    }
+    return (await res.json()) as T;
+  } catch (e) {
+    console.error("[espn] fetch error", url, (e as Error)?.message);
+    return null;
+  }
+}
+
 async function getJson<T>(url: string, ttlSeconds: number): Promise<T | null> {
   const now = Date.now();
   const cached = memCache.get(url);
@@ -70,23 +108,27 @@ async function getJson<T>(url: string, ttlSeconds: number): Promise<T | null> {
 
   const task = (async () => {
     try {
-      const res = await fetch(url, {
-        cache: "no-store",
-        headers: {
-          "user-agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-          accept: "application/json, text/plain, */*",
-        },
-      });
-      if (!res.ok) {
-        console.error("[espn] non-ok", res.status, url);
-        return null;
+      let json: T | null = null;
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        json = await fetchOnce<T>(url);
+        if (json !== null) break;
+        if (attempt < MAX_ATTEMPTS) await sleep(RETRY_DELAY_MS * attempt);
       }
-      const json = (await res.json()) as T;
-      memCache.set(url, { at: Date.now(), value: json });
-      return json;
-    } catch (e) {
-      console.error("[espn] fetch error", url, (e as Error)?.message);
+
+      if (json !== null) {
+        memCache.set(url, { at: Date.now(), value: json });
+        return json;
+      }
+
+      // Every attempt failed. Rather than surfacing an empty result (which
+      // would wipe games/players off the site until the next lucky refresh),
+      // fall back to the last known-good response for this URL, however
+      // stale, so a transient ESPN/Akamai hiccup can't stop managers from
+      // picking or watching the board.
+      if (cached) {
+        console.error("[espn] all attempts failed, serving stale cache", url);
+        return cached.value as T;
+      }
       return null;
     } finally {
       inflight.delete(url);
@@ -161,10 +203,34 @@ async function getRoster(teamId: string): Promise<{ id: string; name: string; po
   return out;
 }
 
+// A full slate is ~32 teams. Firing every roster request at once looks like a
+// burst to ESPN's bot protection and makes the odd 403 more likely; a small
+// concurrency cap spreads the requests out while still finishing quickly.
+const ROSTER_CONCURRENCY = 6;
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i]);
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker())
+  );
+  return results;
+}
+
 /** Every pickable player for the week, tagged with their game + opponent. */
 export async function getWeekPlayers(meta: SeasonMeta): Promise<WeekPlayer[]> {
   const games = await getWeekGames(meta);
-  const teamTasks: Promise<WeekPlayer[]>[] = [];
+  const teamSides: { team: GameTeam; opp: GameTeam; game: WeekGame }[] = [];
 
   for (const game of games) {
     const sides: [GameTeam, GameTeam][] = [
@@ -173,26 +239,29 @@ export async function getWeekPlayers(meta: SeasonMeta): Promise<WeekPlayer[]> {
     ];
     for (const [team, opp] of sides) {
       if (!team.teamId) continue;
-      teamTasks.push(
-        getRoster(team.teamId).then((players) =>
-          players.map((p) => ({
-            athleteId: p.id,
-            name: p.name,
-            position: p.position,
-            headshot: p.headshot,
-            teamId: team.teamId,
-            teamAbbrev: team.abbrev,
-            teamName: team.displayName,
-            opponentAbbrev: opp.abbrev,
-            eventId: game.eventId,
-            kickoffAt: game.kickoffAt,
-          }))
-        )
-      );
+      teamSides.push({ team, opp, game });
     }
   }
 
-  const nested = await Promise.all(teamTasks);
+  const nested = await mapWithConcurrency(
+    teamSides,
+    ROSTER_CONCURRENCY,
+    async ({ team, opp, game }) => {
+      const players = await getRoster(team.teamId);
+      return players.map((p) => ({
+        athleteId: p.id,
+        name: p.name,
+        position: p.position,
+        headshot: p.headshot,
+        teamId: team.teamId,
+        teamAbbrev: team.abbrev,
+        teamName: team.displayName,
+        opponentAbbrev: opp.abbrev,
+        eventId: game.eventId,
+        kickoffAt: game.kickoffAt,
+      }));
+    }
+  );
   return nested.flat();
 }
 
