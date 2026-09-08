@@ -2,7 +2,14 @@
 // No API key required. Everything here degrades to empty results on failure so
 // the site never hard-crashes if ESPN changes shape or is unreachable.
 
-const BASE = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
+// NOTE ON HOSTS: Vercel's serverless IPs are 403-blocked by ESPN's primary
+// host (site.api.espn.com). Two hosts DO work from Vercel:
+//   - cdn.espn.com/core/nfl/*?xhr=1        -> scoreboard (games + season/week)
+//   - site.web.api.espn.com/apis/...       -> team rosters + game summaries
+// Everything below is built around those two so live data works in production.
+const CDN = "https://cdn.espn.com/core/nfl";
+const SITE_WEB =
+  "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl";
 
 export type SeasonMeta = {
   season: number;
@@ -105,12 +112,13 @@ function normState(state: string | undefined): "pre" | "in" | "post" {
   return "pre";
 }
 
-/** Detect the current NFL season/week from ESPN's default scoreboard. */
+/** Detect the current NFL season/week from ESPN's default scoreboard (CDN host). */
 export async function getCurrentMeta(): Promise<SeasonMeta> {
-  const data = await getJson<any>(`${BASE}/scoreboard`, 300);
-  const season = Number(data?.season?.year) || new Date().getFullYear();
-  const seasonType = Number(data?.season?.type) || 2;
-  const week = Number(data?.week?.number) || 1;
+  const data = await getJson<any>(`${CDN}/scoreboard?xhr=1`, 300);
+  const sb = data?.content?.sbData ?? data;
+  const season = Number(sb?.season?.year) || new Date().getFullYear();
+  const seasonType = Number(sb?.season?.type) || 2;
+  const week = Number(sb?.week?.number) || 1;
   return { season, seasonType, week };
 }
 
@@ -137,16 +145,16 @@ function parseGame(event: any): WeekGame | null {
   };
 }
 
-/** All games for a given week. */
+/** All games for a given week (CDN host works from Vercel). */
 export async function getWeekGames(meta: SeasonMeta): Promise<WeekGame[]> {
-  const url = `${BASE}/scoreboard?dates=${meta.season}&seasontype=${meta.seasonType}&week=${meta.week}`;
+  const url = `${CDN}/scoreboard?xhr=1&year=${meta.season}&seasontype=${meta.seasonType}&week=${meta.week}`;
   const data = await getJson<any>(url, 60);
-  const events: any[] = data?.events ?? [];
+  const events: any[] = data?.content?.sbData?.events ?? [];
   return events.map(parseGame).filter((g): g is WeekGame => !!g);
 }
 
 async function getRoster(teamId: string): Promise<{ id: string; name: string; position: string; headshot: string | null }[]> {
-  const data = await getJson<any>(`${BASE}/teams/${teamId}/roster`, 60 * 60 * 6);
+  const data = await getJson<any>(`${SITE_WEB}/teams/${teamId}/roster`, 60 * 60 * 6);
   const groups: any[] = data?.athletes ?? [];
   const out: { id: string; name: string; position: string; headshot: string | null }[] = [];
   for (const group of groups) {
@@ -206,7 +214,7 @@ export type EventTdInfo = {
 
 /** Anytime TD counts (rush/rec/return/def) per athlete for one game. */
 export async function getEventTdInfo(eventId: string): Promise<EventTdInfo> {
-  const data = await getJson<any>(`${BASE}/summary?event=${eventId}`, 20);
+  const data = await getJson<any>(`${SITE_WEB}/summary?event=${eventId}`, 20);
   const state = normState(data?.header?.competitions?.[0]?.status?.type?.state);
   const tds: Record<string, number> = {};
 
