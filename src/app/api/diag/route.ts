@@ -2,9 +2,6 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const BASE = "https://site.api.espn.com/apis/site/v2/sports/football/nfl";
-const CDN = "https://cdn.espn.com/core/nfl/scoreboard";
-
 const HEADERS = {
   "user-agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -14,32 +11,57 @@ const HEADERS = {
   origin: "https://www.espn.com",
 };
 
-async function probe(label: string, url: string) {
+async function probe(label: string, url: string, count?: (j: any) => number) {
   const t = Date.now();
   try {
     const res = await fetch(url, { cache: "no-store", headers: HEADERS });
-    let events = -1;
-    let text = "";
+    let n = -1;
     try {
       const j: any = await res.json();
-      events = (j?.events ?? j?.content?.sbData?.events ?? []).length;
+      n = count ? count(j) : -1;
     } catch {
-      text = "(non-json)";
+      /* non-json */
     }
-    return { label, url, status: res.status, events, ms: Date.now() - t, text };
+    return { label, status: res.status, count: n, ms: Date.now() - t };
   } catch (e) {
-    return { label, url, error: (e as Error)?.message, ms: Date.now() - t };
+    return { label, error: (e as Error)?.message, ms: Date.now() - t };
   }
 }
 
 export async function GET() {
+  const EID = "401872656";
+  const rosterCount = (j: any) => {
+    const groups = j?.athletes ?? [];
+    let c = 0;
+    for (const g of groups) c += (g.items ?? []).length;
+    return c;
+  };
   const results = await Promise.all([
-    probe("default", `${BASE}/scoreboard`),
-    probe("params-full", `${BASE}/scoreboard?dates=2026&seasontype=2&week=1`),
-    probe("params-noDates", `${BASE}/scoreboard?seasontype=2&week=1`),
-    probe("params-weekOnly", `${BASE}/scoreboard?week=1`),
-    probe("date-range", `${BASE}/scoreboard?dates=20260908-20260916`),
-    probe("cdn-core", `${CDN}?xhr=1&week=1&seasontype=2&year=2026`),
+    probe(
+      "cdn-scoreboard",
+      "https://cdn.espn.com/core/nfl/scoreboard?xhr=1&week=1&seasontype=2&year=2026",
+      (j) => (j?.content?.sbData?.events ?? []).length
+    ),
+    probe(
+      "siteweb-roster",
+      "https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/teams/26/roster",
+      rosterCount
+    ),
+    probe(
+      "sitecore-roster",
+      "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/26/roster",
+      rosterCount
+    ),
+    probe(
+      "siteweb-summary",
+      `https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${EID}`,
+      (j) => (j?.boxscore?.players ?? []).length
+    ),
+    probe(
+      "cdn-boxscore",
+      `https://cdn.espn.com/core/nfl/boxscore?xhr=1&gameId=${EID}`,
+      (j) => (j?.gamepackageJSON?.boxscore?.players ?? []).length
+    ),
   ]);
   return NextResponse.json({ results });
 }
