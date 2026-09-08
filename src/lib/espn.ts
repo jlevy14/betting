@@ -76,6 +76,9 @@ async function getJson<T>(url: string, ttlSeconds: number): Promise<T | null> {
           "user-agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
           accept: "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          referer: "https://www.espn.com/nfl/scoreboard",
+          origin: "https://www.espn.com",
         },
       });
       if (!res.ok) {
