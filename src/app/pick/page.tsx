@@ -9,18 +9,12 @@ import {
   getShameInfo,
   weekMeta,
 } from "@/lib/league";
-import { getWeekPlayers, type WeekPlayer } from "@/lib/espn";
+import { getWeekPlayers } from "@/lib/espn";
 import { formatKickoff, weekLabel } from "@/lib/format";
 import { cookies } from "next/headers";
+import { PlayerSearch, type PlayerOpt } from "./player-search";
 
 export const dynamic = "force-dynamic";
-
-const POSITION_ORDER: Record<string, number> = {
-  QB: 1, RB: 2, FB: 3, WR: 4, TE: 5,
-};
-function posRank(pos: string): number {
-  return POSITION_ORDER[pos] ?? 50;
-}
 
 type SP = { [key: string]: string | string[] | undefined };
 
@@ -80,30 +74,18 @@ export default async function PickPage({
   const takenBy = new Map<string, string>();
   for (const p of picks) takenBy.set(p.espnAthleteId, p.member.displayName);
 
-  // Group players by team for the giant dropdown.
+  // Flat, searchable list of players for the type-ahead picker.
   const now = Date.now();
-  const byTeam = new Map<
-    string,
-    { opp: string; kickoff: string; players: WeekPlayer[] }
-  >();
-  for (const pl of players) {
-    let g = byTeam.get(pl.teamAbbrev);
-    if (!g) {
-      g = { opp: pl.opponentAbbrev, kickoff: pl.kickoffAt, players: [] };
-      byTeam.set(pl.teamAbbrev, g);
-    }
-    g.players.push(pl);
-  }
-  const teamGroups = Array.from(byTeam.entries())
-    .map(([abbrev, g]) => ({
-      abbrev,
-      ...g,
-      started: new Date(g.kickoff).getTime() <= now,
-      players: g.players.sort(
-        (a, b) => posRank(a.position) - posRank(b.position) || a.name.localeCompare(b.name)
-      ),
-    }))
-    .sort((a, b) => a.abbrev.localeCompare(b.abbrev));
+  const playerOptions: PlayerOpt[] = players.map((pl) => ({
+    id: pl.athleteId,
+    name: pl.name,
+    position: pl.position,
+    team: pl.teamAbbrev,
+    opp: pl.opponentAbbrev,
+    kickoffLabel: formatKickoff(pl.kickoffAt),
+    started: new Date(pl.kickoffAt).getTime() <= now,
+    takenBy: takenBy.get(pl.athleteId) ?? null,
+  }));
 
   const noGames = players.length === 0;
 
@@ -170,33 +152,10 @@ export default async function PickPage({
               <p>
                 <label>2) WHO SCORES?</label>
                 <br />
-                <select name="athleteId" defaultValue="" required style={{ maxWidth: "100%" }}>
-                  <option value="" disabled>
-                    -- pick a player --
-                  </option>
-                  {teamGroups.map((g) => (
-                    <optgroup
-                      key={g.abbrev}
-                      label={`${g.abbrev} vs ${g.opp} - ${formatKickoff(g.kickoff)}${g.started ? " [STARTED]" : ""}`}
-                    >
-                      {g.players.map((pl) => {
-                        const taker = takenBy.get(pl.athleteId);
-                        const disabled = g.started || !!taker;
-                        return (
-                          <option
-                            key={pl.athleteId}
-                            value={pl.athleteId}
-                            disabled={disabled}
-                          >
-                            {pl.name} ({pl.position})
-                            {taker ? ` - TAKEN by ${taker}` : ""}
-                            {g.started ? " - game started" : ""}
-                          </option>
-                        );
-                      })}
-                    </optgroup>
-                  ))}
-                </select>
+                <span className="small">
+                  Type a name, then click your guy (no scrolling the whole NFL).
+                </span>
+                <PlayerSearch players={playerOptions} />
               </p>
 
               <p className="center">
