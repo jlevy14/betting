@@ -221,6 +221,96 @@ export async function getShameInfo(week: Week): Promise<ShameInfo> {
   return { active: true, firstKickoff, deadbeats };
 }
 
+export type LeaderRow = {
+  memberId: string;
+  displayName: string;
+  hits: number;
+  misses: number;
+  picks: number;
+};
+
+/** Season-long standings: who has the most correct (hit) picks across all weeks. */
+export async function getLeaderboard(): Promise<LeaderRow[]> {
+  const members = await prisma.member.findMany({
+    orderBy: { sortOrder: "asc" },
+  });
+  const picks = await prisma.pick.findMany({
+    select: { memberId: true, status: true },
+  });
+
+  const tally = new Map<string, { hits: number; misses: number; picks: number }>();
+  for (const m of members) tally.set(m.id, { hits: 0, misses: 0, picks: 0 });
+  for (const p of picks) {
+    const t = tally.get(p.memberId);
+    if (!t) continue;
+    t.picks += 1;
+    if (p.status === "hit") t.hits += 1;
+    else if (p.status === "miss") t.misses += 1;
+  }
+
+  return members
+    .map((m) => {
+      const t = tally.get(m.id)!;
+      return { memberId: m.id, displayName: m.displayName, ...t };
+    })
+    .sort(
+      (a, b) =>
+        b.hits - a.hits ||
+        b.hits / (b.picks || 1) - a.hits / (a.picks || 1) ||
+        a.displayName.localeCompare(b.displayName)
+    );
+}
+
+export type WeekRecap = {
+  weekLabel: string;
+  weekKey: string;
+  missers: string[];
+  hits: number;
+  totalPicks: number;
+  jackpot: boolean;
+  dead: boolean;
+};
+
+/** Key that uniquely identifies a week (used to detect "new week" per browser). */
+export function weekKey(week: Week): string {
+  return `${week.season}-${week.seasonType}-${week.weekNum}`;
+}
+
+/**
+ * Recap of the most recent NON-active week, used for the "welcome back to a new
+ * week" humiliation. Returns null if there's no prior week with picks.
+ */
+export async function getPreviousWeekRecap(
+  activeWeek: Week
+): Promise<WeekRecap | null> {
+  const weeks = await listWeeks(); // newest first
+  const prev = weeks.find((w) => w.id !== activeWeek.id);
+  if (!prev) return null;
+
+  const picks = await prisma.pick.findMany({
+    where: { weekId: prev.id },
+    include: { member: true },
+    orderBy: { member: { sortOrder: "asc" } },
+  });
+  if (picks.length === 0) return null;
+
+  const missers = picks
+    .filter((p) => p.status === "miss")
+    .map((p) => p.member.displayName);
+  const hits = picks.filter((p) => p.status === "hit").length;
+  const jackpot = picks.length === LEAGUE_SIZE && hits === LEAGUE_SIZE;
+
+  return {
+    weekLabel: weekLabel(prev.season, prev.seasonType, prev.weekNum),
+    weekKey: weekKey(prev),
+    missers,
+    hits,
+    totalPicks: picks.length,
+    jackpot,
+    dead: missers.length > 0,
+  };
+}
+
 export async function listWeeks(): Promise<Week[]> {
   return prisma.week.findMany({
     orderBy: [{ season: "desc" }, { seasonType: "desc" }, { weekNum: "desc" }],

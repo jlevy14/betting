@@ -5,10 +5,12 @@ import {
   Nav,
   FooterJunk,
   ShameWall,
+  MissScroller,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
 import { JackpotCelebration } from "./jackpot";
+import { WeekResetShame } from "./week-reset-shame";
 import {
   getOrCreateActiveWeek,
   getBoardData,
@@ -16,9 +18,12 @@ import {
   listWeeks,
   findWeek,
   getShameInfo,
+  getPreviousWeekRecap,
+  weekKey,
   LEAGUE_SIZE,
 } from "@/lib/league";
 import { centsToDollars, formatKickoff, weekLabel } from "@/lib/format";
+import { cookies } from "next/headers";
 import type { Week } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -67,11 +72,38 @@ export default async function BoardPage({
       ? ["Kevin", "Danny", "Marcus"]
       : shame.deadbeats;
 
+  // Current-week missers get roasted in the scrolling ticker.
+  const missNames = board.picks
+    .filter((p) => p.status === "miss")
+    .map((p) => p.member.displayName);
+
+  // First-visit-of-a-new-week humiliation recapping the previous week.
+  const recap = isArchive ? null : await getPreviousWeekRecap(week);
+  const currentWeekKey = weekKey(week);
+  const cookieStore = await cookies();
+  const seenWeek = cookieStore.get("lmab_seen_week")?.value ?? "";
+  const showWeekReset =
+    !isArchive &&
+    !!recap &&
+    recap.missers.length > 0 &&
+    seenWeek !== currentWeekKey;
+  // Preview with /?recap=1
+  const forceRecap = sp.recap != null && !!recap;
+
   return (
     <div id="top">
       <JackpotCelebration active={board.jackpot || partyPreview} />
+      {recap ? (
+        <WeekResetShame
+          active={showWeekReset || forceRecap}
+          weekKey={currentWeekKey}
+          recap={recap}
+        />
+      ) : null}
       <CompactHeader />
       <Nav active="board" />
+
+      <MissScroller names={missNames} />
 
       <ShameWall names={shameNames} />
 

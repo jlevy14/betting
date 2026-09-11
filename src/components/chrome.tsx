@@ -191,7 +191,11 @@ export function SidebarJunk() {
   );
 }
 
-export function Nav({ active }: { active: "board" | "pick" | "admin" }) {
+export function Nav({
+  active,
+}: {
+  active: "board" | "pick" | "leaderboard" | "admin";
+}) {
   return (
     <div className="navbar">
       <Link className="navbtn" href="/" style={active === "board" ? underline : undefined}>
@@ -200,9 +204,55 @@ export function Nav({ active }: { active: "board" | "pick" | "admin" }) {
       <Link className="navbtn" href="/pick" style={active === "pick" ? underline : undefined}>
         &#9997; MAKE YOUR PICK
       </Link>
+      <Link
+        className="navbtn"
+        href="/leaderboard"
+        style={active === "leaderboard" ? underline : undefined}
+      >
+        &#127942; LEADERBOARD
+      </Link>
       <Link className="navbtn" href="/admin" style={active === "admin" ? underline : undefined}>
         &#128081; HEAD GAMBLER
       </Link>
+    </div>
+  );
+}
+
+// Roasts for managers whose picked player laid an egg (missed).
+const MISS_INSULTS = [
+  "picked a guy who forgot how to score. Brickfingered.",
+  "bet on a literal ghost. Zero. Zilch. Coward's pick.",
+  "whiffed so hard the wind knocked over a stadium.",
+  "single-handedly threatened the billion. Unforgivable.",
+  "chose a player allergic to the end zone. Embarrassing.",
+  "made a pick so bad it belongs in a museum of failure.",
+  "got cooked. Somewhere a scout is laughing at them.",
+  "fumbled the assignment. A stain on this proud league.",
+];
+
+function missInsult(name: string, i: number): string {
+  let h = (i * 2654435761) >>> 0;
+  for (let k = 0; k < name.length; k++) h = (h * 31 + name.charCodeAt(k)) >>> 0;
+  return MISS_INSULTS[h % MISS_INSULTS.length];
+}
+
+// Scrolling shame ticker for anyone whose pick has already missed this week.
+export function MissScroller({ names }: { names: string[] }) {
+  if (!names || names.length === 0) return null;
+  return (
+    <div className="miss-scroller">
+      <Marquee>
+        {names.map((n, i) => (
+          <span key={n} style={{ marginRight: 40 }}>
+            &#128128; <b>{n.toUpperCase()}</b> {missInsult(n, i)}
+          </span>
+        ))}
+        {names.map((n, i) => (
+          <span key={n + "-2"} style={{ marginRight: 40 }}>
+            &#128128; <b>{n.toUpperCase()}</b> {missInsult(n, i)}
+          </span>
+        ))}
+      </Marquee>
     </div>
   );
 }
