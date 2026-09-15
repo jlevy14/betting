@@ -21,7 +21,10 @@ shows how close the ticket is to cashing, plus the potential payout per person.
 - **`/`  The Board** (public): the current week's 12 picks, live HIT / MISS /
   PLAYING status, the giant blinking payout, a per-person share, a "legs hit"
   thermometer, and a DEAD banner if the ticket busts. Auto-refreshes while games
-  are live. Past weeks are browsable at the bottom.
+  are live. Past weeks are browsable at the bottom. The active week itself also
+  flips over automatically every Tuesday morning via a scheduled job (see
+  "Weekly auto-refresh" below), so the board doesn't get stuck on last week if
+  nobody happens to visit right when the NFL week rolls over.
 - **`/pick`** (league password): choose your name, then pick a player from a giant
   dropdown of everyone playing that week. No two managers can pick the same
   player, and your pick **locks when that player's game kicks off**. QB *passing*
@@ -135,6 +138,34 @@ the nameservers to Vercel, or add the A/CNAME records they show).
 
 ---
 
+## Weekly auto-refresh
+
+Normally the site detects the "current" NFL week and creates its row lazily,
+the first time anyone loads `/` or `/pick` after it changes. That's usually
+fine, but if nobody visits right when ESPN's week counter ticks over, the
+board can sit on the old week until someone does.
+
+To avoid that, `vercel.json` defines a [Vercel Cron Job](https://vercel.com/docs/cron-jobs)
+that hits `/api/cron/weekly-refresh` every **Tuesday morning around 8am ET**
+(when the previous week's Monday Night Football has finished and ESPN has
+rolled over to the new week). That endpoint does exactly what a normal page
+load does -- detect/create the active week and sync live stats -- so the
+board is guaranteed to flip over on schedule even with zero traffic.
+
+Vercel Cron schedules are UTC-only and ET moves between EDT (UTC-4) and EST
+(UTC-5) across the season, so the job is actually scheduled twice -- `12:00`
+and `13:00` UTC on Tuesdays -- and whichever one currently corresponds to 8am
+ET does the real work. The endpoint is idempotent, so the other invocation is
+a harmless no-op.
+
+This only takes effect once the project is deployed to Vercel (Vercel reads
+`vercel.json` and creates the cron jobs for you -- no dashboard setup
+needed). To lock the endpoint down so only Vercel's own cron can call it, set
+a `CRON_SECRET` environment variable (see below); Vercel automatically sends
+it back as the request's `Authorization` header.
+
+---
+
 ## Environment variables
 
 | Variable           | Required | Notes                                              |
@@ -143,6 +174,7 @@ the nameservers to Vercel, or add the A/CNAME records they show).
 | `DIRECT_URL`       | yes      | Supabase Session pooler URL (port 5432)            |
 | `LEAGUE_PASSWORD`  | yes      | shared password for all members to submit picks    |
 | `COMMISH_PASSWORD` | yes      | commissioner-only password for `/admin`            |
+| `CRON_SECRET`      | no       | secures `/api/cron/weekly-refresh`; set the same random value in Vercel |
 
 > Note on security: this is a friends-only game. Auth is a shared password plus a
 > signed cookie -- anyone with the league password can submit a pick as any name.
