@@ -13,10 +13,11 @@ import {
 import { getWeekPlayers } from "@/lib/espn";
 import {
   getOrCreateActiveWeek,
+  advanceToNextWeek,
   syncWeekLive,
   weekMeta,
 } from "@/lib/league";
-import { dollarsToCents } from "@/lib/format";
+import { dollarsToCents, weekLabel } from "@/lib/format";
 
 // ---------------------------------------------------------------- auth
 
@@ -232,4 +233,20 @@ export async function adminSyncNow(): Promise<void> {
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin?ok=" + encodeURIComponent("Synced with ESPN."));
+}
+
+// Manual override for the Tuesday auto-refresh: force the board onto next
+// week right now, whatever ESPN currently reports. The old week just becomes
+// inactive (and shows up under "Past Weeks") -- nothing is deleted.
+export async function adminAdvanceWeek(): Promise<void> {
+  await requireCommish();
+  const week = await advanceToNextWeek();
+  revalidatePath("/");
+  revalidatePath("/admin");
+  redirect(
+    "/admin?ok=" +
+      encodeURIComponent(
+        `Moved on to ${weekLabel(week.season, week.seasonType, week.weekNum)}.`
+      )
+  );
 }

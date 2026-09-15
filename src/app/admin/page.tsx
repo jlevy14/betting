@@ -8,6 +8,7 @@ import {
   adminOverridePick,
   adminClearPick,
   adminSyncNow,
+  adminAdvanceWeek,
 } from "../actions";
 import { hasAccess } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -164,9 +165,22 @@ export default async function AdminPage({
             <div className="l">Not started</div>
           </div>
         </div>
-        <form action={adminSyncNow}>
-          <button type="submit" className="btn-secondary">Sync with ESPN now</button>
-        </form>
+        <div className="hg-row-actions">
+          <form action={adminSyncNow}>
+            <button type="submit" className="btn-secondary">Sync with ESPN now</button>
+          </form>
+          <form action={adminAdvanceWeek}>
+            <button type="submit" className="btn-secondary">
+              Refresh &amp; move to next week &#8594;
+            </button>
+          </form>
+        </div>
+        <p className="hg-hint">
+          The board normally flips to the next week on its own (auto-detected
+          from ESPN every Tuesday morning). Use this if you need to force it
+          early -- last week&apos;s results aren&apos;t touched, they just move
+          to &ldquo;Past Weeks.&rdquo;
+        </p>
       </div>
 
       {/* OVERRIDES */}

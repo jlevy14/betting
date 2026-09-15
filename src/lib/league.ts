@@ -29,25 +29,46 @@ export async function ensureMembers(): Promise<void> {
   });
 }
 
-/** Detect the current NFL week and make sure a matching, active Week row exists. */
+// Orders two SeasonMeta values chronologically (seasonType already sorts
+// correctly as a number: 1=pre, 2=regular, 3=post).
+function compareMeta(a: SeasonMeta, b: SeasonMeta): number {
+  if (a.season !== b.season) return a.season - b.season;
+  if (a.seasonType !== b.seasonType) return a.seasonType - b.seasonType;
+  return a.week - b.week;
+}
+
+/**
+ * Detect the current NFL week and make sure a matching, active Week row
+ * exists. This is called on essentially every page load, so it deliberately
+ * never moves the active week BACKWARD relative to whatever is already
+ * active in the DB -- only forward. Without that guard, a manual
+ * "advanceToNextWeek()" override (or ESPN briefly lagging) would get
+ * silently reverted the moment anyone loaded the site again.
+ */
 export async function getOrCreateActiveWeek(): Promise<Week> {
   await ensureMembers();
   const meta = await getCurrentMeta();
 
+  const activeWeek = await prisma.week.findFirst({ where: { isActive: true } });
+  const target =
+    activeWeek && compareMeta(weekMeta(activeWeek), meta) >= 0
+      ? weekMeta(activeWeek)
+      : meta;
+
   const week = await prisma.week.upsert({
     where: {
       season_seasonType_weekNum: {
-        season: meta.season,
-        seasonType: meta.seasonType,
-        weekNum: meta.week,
+        season: target.season,
+        seasonType: target.seasonType,
+        weekNum: target.week,
       },
     },
     update: {},
     create: {
-      season: meta.season,
-      seasonType: meta.seasonType,
-      weekNum: meta.week,
-      label: weekLabel(meta.season, meta.seasonType, meta.week),
+      season: target.season,
+      seasonType: target.seasonType,
+      weekNum: target.week,
+      label: weekLabel(target.season, target.seasonType, target.week),
       isActive: true,
     },
   });
@@ -69,6 +90,62 @@ export async function getOrCreateActiveWeek(): Promise<Week> {
 
 export function weekMeta(week: Week): SeasonMeta {
   return { season: week.season, seasonType: week.seasonType, week: week.weekNum };
+}
+
+// Rough NFL calendar boundaries, only used to figure out what "next week"
+// means when a season-type rolls over (preseason -> regular -> playoffs).
+const LAST_PRESEASON_WEEK = 4;
+const LAST_REGULAR_SEASON_WEEK = 18;
+
+function nextWeekMeta(meta: SeasonMeta): SeasonMeta {
+  if (meta.seasonType === 1 && meta.week >= LAST_PRESEASON_WEEK) {
+    return { season: meta.season, seasonType: 2, week: 1 };
+  }
+  if (meta.seasonType === 2 && meta.week >= LAST_REGULAR_SEASON_WEEK) {
+    return { season: meta.season, seasonType: 3, week: 1 };
+  }
+  return { season: meta.season, seasonType: meta.seasonType, week: meta.week + 1 };
+}
+
+/**
+ * Manually force the board onto the next week, regardless of what ESPN
+ * currently reports as "current" -- for when the commissioner knows a week is
+ * over before ESPN's own counter (or the Tuesday auto-refresh) catches up.
+ * The prior week isn't touched other than losing `isActive`, so it stays
+ * fully intact under "Past Weeks".
+ */
+export async function advanceToNextWeek(): Promise<Week> {
+  const current = await getOrCreateActiveWeek();
+  const next = nextWeekMeta(weekMeta(current));
+
+  const week = await prisma.week.upsert({
+    where: {
+      season_seasonType_weekNum: {
+        season: next.season,
+        seasonType: next.seasonType,
+        weekNum: next.week,
+      },
+    },
+    update: {},
+    create: {
+      season: next.season,
+      seasonType: next.seasonType,
+      weekNum: next.week,
+      label: weekLabel(next.season, next.seasonType, next.week),
+      isActive: true,
+    },
+  });
+
+  await prisma.week.updateMany({
+    where: { isActive: true, NOT: { id: week.id } },
+    data: { isActive: false },
+  });
+  if (!week.isActive) {
+    await prisma.week.update({ where: { id: week.id }, data: { isActive: true } });
+  }
+
+  await syncWeekLive(week.id);
+  return prisma.week.findUniqueOrThrow({ where: { id: week.id } });
 }
 
 /**
