@@ -611,7 +611,6 @@ table.leaderboard td:nth-child(n + 3) {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  animation: blinker 1.2s steps(2, start) infinite;
 }
 .wrs-modal {
   max-width: 560px;
