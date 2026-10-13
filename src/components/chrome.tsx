@@ -257,6 +257,80 @@ export function MissScroller({ names }: { names: string[] }) {
   );
 }
 
+// Minimum streak length (in weeks) before someone gets called out, in either
+// direction -- one bad/good week isn't a "streak" yet.
+const STREAK_THRESHOLD = 2;
+
+// Bullying for people stuck on a losing (miss) streak.
+const SLUMP_INSULTS = [
+  "{name} has gone cold for {n} straight weeks. The parlay fears no one, but it definitely laughs at {name}.",
+  "{n} weeks. {n} misses. {name} is an active hazard to this billion.",
+  "{name} is {n}-for-{n} on ruining it. A truly historic slump.",
+  "Somewhere, a football is relieved it doesn't have to deal with {name} anymore -- {n} straight whiffs.",
+  "{name} hasn't hit in {n} weeks. At this point it's performance art.",
+  "{n} consecutive L's for {name}. Maybe try picking the kicker next.",
+  "{name} is on a {n}-week miss streak and the league can smell it.",
+  "The scouting report on {name}: {n} weeks of pure, uncut disappointment.",
+];
+
+// Praise for people on a winning (hit) streak.
+const HEAT_CHECK_PRAISE = [
+  "{name} is {n}-for-{n} and somehow still humble about it. Respect.",
+  "{n} straight hits for {name}. Somebody check their crystal ball.",
+  "{name} has hit {n} weeks in a row. Certified league menace.",
+  "All hail {name}: {n}-week hit streak and counting.",
+  "{name} is COOKING -- {n} straight weeks of touchdowns. Buy stock now.",
+  "{n} for {n}. {name} might actually be cheating. (They're not. They're just better.)",
+  "{name} is on a heater: {n} weeks, {n} hits, zero doubt.",
+  "The rest of the league is on upset watch -- {name} just extended it to {n} in a row.",
+];
+
+function streakLine(name: string, n: number, seed: number, bad: boolean): string {
+  const bank = bad ? SLUMP_INSULTS : HEAT_CHECK_PRAISE;
+  let h = seed >>> 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return bank[h % bank.length]
+    .replace(/\{name\}/g, name.toUpperCase())
+    .replace(/\{n\}/g, String(n));
+}
+
+export type StreakRow = { displayName: string; streak: number };
+
+// Scrolling ticker that bullies anyone on a 2+ week miss streak and hypes up
+// anyone on a 2+ week hit streak. Quietly does nothing if nobody qualifies.
+export function StreakTicker({ rows }: { rows: StreakRow[] }) {
+  const slumping = rows.filter((r) => r.streak <= -STREAK_THRESHOLD);
+  const heating = rows.filter((r) => r.streak >= STREAK_THRESHOLD);
+  if (slumping.length === 0 && heating.length === 0) return null;
+
+  return (
+    <div className="streak-ticker">
+      {heating.length > 0 ? (
+        <div className="streak-hot">
+          <Marquee>
+            {heating.map((r, i) => (
+              <span key={r.displayName} style={{ marginRight: 40 }}>
+                &#128293; {streakLine(r.displayName, r.streak, i * 2654435761, false)}
+              </span>
+            ))}
+          </Marquee>
+        </div>
+      ) : null}
+      {slumping.length > 0 ? (
+        <div className="streak-cold">
+          <Marquee>
+            {slumping.map((r, i) => (
+              <span key={r.displayName} style={{ marginRight: 40 }}>
+                &#129398; {streakLine(r.displayName, -r.streak, i * 2654435761, true)}
+              </span>
+            ))}
+          </Marquee>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 const underline: React.CSSProperties = {
   textDecoration: "underline",
   background: "#ffff99",

@@ -11,6 +11,29 @@ function medal(rank: number): string {
   return "";
 }
 
+// Minimum streak length before it's called out on the board.
+const STREAK_THRESHOLD = 2;
+
+function streakBadge(streak: number): React.ReactNode {
+  if (streak >= STREAK_THRESHOLD) {
+    return (
+      <span className="pill hit">
+        &#128293; {streak}W HEATER
+      </span>
+    );
+  }
+  if (streak <= -STREAK_THRESHOLD) {
+    return (
+      <span className="pill miss">
+        &#129398; {-streak}L SLUMP
+      </span>
+    );
+  }
+  if (streak === 1) return <span className="small">1W</span>;
+  if (streak === -1) return <span className="small">1L</span>;
+  return <span className="small">&mdash;</span>;
+}
+
 export default async function LeaderboardPage() {
   const rows = await getLeaderboard();
   const anyPicks = rows.some((r) => r.picks > 0);
@@ -56,6 +79,7 @@ export default async function LeaderboardPage() {
                     <th>&#128128; MISSES</th>
                     <th>PICKS</th>
                     <th>HIT %</th>
+                    <th>STREAK</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -85,6 +109,7 @@ export default async function LeaderboardPage() {
                         <td style={{ color: "#b00000" }}>{r.misses}</td>
                         <td>{r.picks}</td>
                         <td>{pct}%</td>
+                        <td>{streakBadge(r.streak)}</td>
                       </tr>
                     );
                   })}

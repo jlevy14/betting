@@ -54,7 +54,7 @@ export function WeekResetShame({
   return (
     <div className="wrs-overlay" role="dialog" aria-modal="true">
       <div className="wrs-modal">
-        <div className="wrs-title blink">
+        <div className="wrs-title">
           &#128197; NEW WEEK. {recap.weekLabel.toUpperCase()} IS IN THE BOOKS.
         </div>
 

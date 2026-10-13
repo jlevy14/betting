@@ -6,6 +6,7 @@ import {
   FooterJunk,
   ShameWall,
   MissScroller,
+  StreakTicker,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
 import { LiveRefresher } from "./live-refresher";
@@ -19,6 +20,7 @@ import {
   findWeek,
   getShameInfo,
   getPreviousWeekRecap,
+  getLeaderboard,
   weekKey,
   LEAGUE_SIZE,
 } from "@/lib/league";
@@ -77,6 +79,9 @@ export default async function BoardPage({
     .filter((p) => p.status === "miss")
     .map((p) => p.member.displayName);
 
+  // Season-long hit/miss streaks, for bullying slumps and hyping heaters.
+  const leaderboard = await getLeaderboard();
+
   // First-visit-of-a-new-week humiliation recapping the previous week.
   const recap = isArchive ? null : await getPreviousWeekRecap(week);
   const currentWeekKey = weekKey(week);
@@ -104,6 +109,8 @@ export default async function BoardPage({
       <Nav active="board" />
 
       <MissScroller names={missNames} />
+
+      <StreakTicker rows={leaderboard} />
 
       <ShameWall names={shameNames} />
 

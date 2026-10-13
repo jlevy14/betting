@@ -304,6 +304,9 @@ export type LeaderRow = {
   hits: number;
   misses: number;
   picks: number;
+  // Current trailing streak of decided (hit/miss) picks, chronologically.
+  // Positive = N-week hit streak, negative = N-week miss streak, 0 = none yet.
+  streak: number;
 };
 
 /** Season-long standings: who has the most correct (hit) picks across all weeks. */
@@ -312,17 +315,51 @@ export async function getLeaderboard(): Promise<LeaderRow[]> {
     orderBy: { sortOrder: "asc" },
   });
   const picks = await prisma.pick.findMany({
-    select: { memberId: true, status: true },
+    select: {
+      memberId: true,
+      status: true,
+      week: { select: { season: true, seasonType: true, weekNum: true } },
+    },
   });
 
-  const tally = new Map<string, { hits: number; misses: number; picks: number }>();
-  for (const m of members) tally.set(m.id, { hits: 0, misses: 0, picks: 0 });
+  const byMember = new Map<string, typeof picks>();
+  for (const m of members) byMember.set(m.id, []);
   for (const p of picks) {
-    const t = tally.get(p.memberId);
-    if (!t) continue;
-    t.picks += 1;
-    if (p.status === "hit") t.hits += 1;
-    else if (p.status === "miss") t.misses += 1;
+    byMember.get(p.memberId)?.push(p);
+  }
+
+  const tally = new Map<
+    string,
+    { hits: number; misses: number; picks: number; streak: number }
+  >();
+  for (const m of members) {
+    const arr = (byMember.get(m.id) ?? []).slice().sort(
+      (a, b) =>
+        a.week.season - b.week.season ||
+        a.week.seasonType - b.week.seasonType ||
+        a.week.weekNum - b.week.weekNum
+    );
+
+    let hits = 0;
+    let misses = 0;
+    for (const p of arr) {
+      if (p.status === "hit") hits += 1;
+      else if (p.status === "miss") misses += 1;
+    }
+
+    // Walk backwards from the most recent decided pick, counting while the
+    // result keeps matching (all hits, or all misses).
+    let streak = 0;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const status = arr[i].status;
+      if (status !== "hit" && status !== "miss") continue;
+      const isHit = status === "hit";
+      if (streak === 0) streak = isHit ? 1 : -1;
+      else if (streak > 0 === isHit) streak += isHit ? 1 : -1;
+      else break;
+    }
+
+    tally.set(m.id, { hits, misses, picks: arr.length, streak });
   }
 
   return members

@@ -595,6 +595,35 @@ marquee.bottom {
   box-shadow: 0 0 10px #ff0000;
 }
 
+/* ---- streak ticker: bullies slumps, hypes heaters ---- */
+.streak-ticker {
+  max-width: 1120px;
+  margin: 6px auto;
+}
+.streak-ticker > *:not(:last-child) {
+  margin-bottom: 4px;
+}
+.streak-hot {
+  background: #003300;
+  border: 3px solid #00ff66;
+  color: #ccffdd;
+  font-family: Tahoma, Verdana, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 4px 0;
+  box-shadow: 0 0 10px #00ff66;
+}
+.streak-cold {
+  background: #001a33;
+  border: 3px solid #00ccff;
+  color: #cceeff;
+  font-family: Tahoma, Verdana, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 4px 0;
+  box-shadow: 0 0 10px #00ccff;
+}
+
 table.leaderboard th {
   text-align: center;
 }
@@ -611,7 +640,6 @@ table.leaderboard td:nth-child(n + 3) {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  animation: blinker 1.2s steps(2, start) infinite;
 }
 .wrs-modal {
   max-width: 560px;
