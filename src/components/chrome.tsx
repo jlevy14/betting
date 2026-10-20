@@ -1,5 +1,7 @@
 import { createElement } from "react";
 import Link from "next/link";
+import { isHalloweenActive } from "@/lib/theme";
+import { HalloweenToggle } from "./halloween-toggle";
 
 // <marquee> is deprecated HTML with no React JSX typing - build it manually.
 function Marquee({ children }: { children: React.ReactNode }) {
@@ -37,7 +39,38 @@ export function Window({
   );
 }
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const halloween = await isHalloweenActive();
+
+  if (halloween) {
+    return (
+      <>
+        <div className="center" style={{ marginBottom: 2 }}>
+          {/* the spinning skeleton heads, as promised */}
+          <span className="spin" style={{ fontSize: 32 }}>&#128128;</span>
+          <span className="hotnew blink">BOO!</span>
+          <span className="bob" style={{ fontSize: 28 }}>&#127875;</span>
+          <span className="hotnew" style={{ transform: "rotate(8deg)" }}>CURSED!</span>
+          <span className="spin" style={{ fontSize: 32 }}>&#128128;</span>
+        </div>
+        <div className="logo shake logo-hw">LETS WIN A CURSED BILLION</div>
+        <div className="tagline blink">
+          &#9760;&#9760;&#9760; The Official 12-Man $12 Anytime-TD HAUNTED Parlay Tracker &#9760;&#9760;&#9760;
+        </div>
+        <div className="center flames">
+          &#127875;&#128123;&#129415;&#128378;&#65039;&#128128;&#129499;&#8205;&#9792;&#65039;&#128378;&#65039;&#129415;&#127875;
+        </div>
+        <Marquee>
+          WELCOME 2 THE MOST HAUNTED FANTASY SITE ON THE ENTIRE WORLD WIDE
+          WEB!!!1! &nbsp; &#127875; ONE DOLLAR IN, A BILLION DOLLARS OUT (OR A
+          HEX, RESULTS DEFINITELY NOT GUARANTEED) &#127875; &nbsp; PICK A GUY.
+          HE SCORES. WE EAT. HE MISSES. WE ARE HAUNTED FOREVER. &nbsp; TRICK
+          OR TREAT &nbsp; &#9760; SIGN THE CURSED GUESTBOOK &#9760;
+        </Marquee>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="center" style={{ marginBottom: 2 }}>
@@ -122,7 +155,30 @@ export function ShameWall({ names }: { names: string[] }) {
 
 // Slimmer header for the board so the page fits on one screen. The loud
 // decorations live in the sidebar (SidebarJunk) instead of stacked up top.
-export function CompactHeader() {
+export async function CompactHeader() {
+  const halloween = await isHalloweenActive();
+
+  if (halloween) {
+    return (
+      <>
+        <div className="center" style={{ marginBottom: 2 }}>
+          <span className="spin" style={{ fontSize: 24 }}>&#128128;</span>
+          <span className="bob" style={{ fontSize: 22 }}>&#127875;</span>
+          <span className="spin" style={{ fontSize: 24, animationDirection: "reverse" }}>&#128128;</span>
+          <span className="bob" style={{ fontSize: 22 }}>&#127875;</span>
+        </div>
+        <Marquee>
+          &#127875; ONE DOLLAR IN, A BILLION DOLLARS OUT (OR A CURSE, RESULTS
+          DEFINITELY NOT GUARANTEED) &#127875; PICK A GUY. HE SCORES. WE EAT.
+          &nbsp; TRICK OR TREAT!!!!
+        </Marquee>
+        <div className="tagline blink">
+          &#9760;&#9760;&#9760; LETS WIN A CURSED BILLION &#8212; 12-Man $12 Anytime-TD HAUNTED Parlay Tracker &#9760;&#9760;&#9760;
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Marquee>
@@ -191,15 +247,16 @@ export function SidebarJunk() {
   );
 }
 
-export function Nav({
+export async function Nav({
   active,
 }: {
   active: "board" | "pick" | "leaderboard" | "admin";
 }) {
+  const halloween = await isHalloweenActive();
   return (
     <div className="navbar">
       <Link className="navbtn" href="/" style={active === "board" ? underline : undefined}>
-        &#127968; THE BOARD
+        {halloween ? "\uD83C\uDF83 THE BOARD" : "\uD83C\uDFE0 THE BOARD"}
       </Link>
       <Link className="navbtn" href="/pick" style={active === "pick" ? underline : undefined}>
         &#9997; MAKE YOUR PICK
@@ -214,6 +271,7 @@ export function Nav({
       <Link className="navbtn" href="/admin" style={active === "admin" ? underline : undefined}>
         &#128081; HEAD GAMBLER
       </Link>
+      <HalloweenToggle active={halloween} />
     </div>
   );
 }
@@ -261,32 +319,138 @@ export function MissScroller({ names }: { names: string[] }) {
 // direction -- one bad/good week isn't a "streak" yet.
 const STREAK_THRESHOLD = 2;
 
-// Bullying for people stuck on a losing (miss) streak.
-const SLUMP_INSULTS = [
-  "{name} has gone cold for {n} straight weeks. The parlay fears no one, but it definitely laughs at {name}.",
-  "{n} weeks. {n} misses. {name} is an active hazard to this billion.",
-  "{name} is {n}-for-{n} on ruining it. A truly historic slump.",
-  "Somewhere, a football is relieved it doesn't have to deal with {name} anymore -- {n} straight whiffs.",
-  "{name} hasn't hit in {n} weeks. At this point it's performance art.",
-  "{n} consecutive L's for {name}. Maybe try picking the kicker next.",
-  "{name} is on a {n}-week miss streak and the league can smell it.",
-  "The scouting report on {name}: {n} weeks of pure, uncut disappointment.",
+// Bullying for people stuck on a losing (miss) streak, bucketed by how long
+// the drought has run. Each tier is meaner than the last -- by the time
+// someone hits "max: Infinity" they've earned every bit of it. {n} is always
+// a positive number of consecutive misses.
+type InsultTier = { max: number; lines: string[] };
+
+const SLUMP_TIERS: InsultTier[] = [
+  {
+    // 2-3 weeks: a little ribbing, nothing personal yet.
+    max: 3,
+    lines: [
+      "{name} has gone cold for {n} straight weeks. Rough, but recoverable.",
+      "{n} weeks, {n} misses for {name}. Due for a bounce-back... probably.",
+      "{name} hasn't hit in {n} weeks. Mildly concerning, deeply funny.",
+      "{n} consecutive L's for {name}. Maybe try picking the kicker next.",
+    ],
+  },
+  {
+    // 4-5 weeks: it's officially a problem.
+    max: 5,
+    lines: [
+      "{n} straight weeks of nothing from {name}. The parlay is starting to notice.",
+      "{name} is {n}-for-{n} on whiffing. People are talking.",
+      "{name}'s {n}-week slump has its own weather pattern now: pure gloom.",
+      "The scouting report on {name}: {n} weeks of pure, uncut disappointment.",
+    ],
+  },
+  {
+    // 6-7 weeks: historic levels of failure.
+    max: 7,
+    lines: [
+      "{n} consecutive weeks of disaster for {name}. This is a cry for help.",
+      "{name} is an active, certified hazard to this billion -- {n} weeks running.",
+      "The league has started a support group for victims of {name}'s {n}-week slump.",
+      "Somewhere, a football is relieved it doesn't have to deal with {name} anymore -- {n} straight whiffs.",
+    ],
+  },
+  {
+    // 8+ weeks: no more jokes, just devastation.
+    max: Infinity,
+    lines: [
+      "{n} STRAIGHT WEEKS. {name} is no longer a manager, {name} is a cautionary tale.",
+      "Scientists studying {name}'s {n}-week slump have classified it as a natural disaster.",
+      "{name} has missed {n} weeks in a row. At this point, retirement is a mercy.",
+      "{n} weeks of pure, uncut failure. {name}, it's time to let someone else pick.",
+    ],
+  },
 ];
 
-// Praise for people on a winning (hit) streak.
-const HEAT_CHECK_PRAISE = [
-  "{name} is {n}-for-{n} and somehow still humble about it. Respect.",
-  "{n} straight hits for {name}. Somebody check their crystal ball.",
-  "{name} has hit {n} weeks in a row. Certified league menace.",
-  "All hail {name}: {n}-week hit streak and counting.",
-  "{name} is COOKING -- {n} straight weeks of touchdowns. Buy stock now.",
-  "{n} for {n}. {name} might actually be cheating. (They're not. They're just better.)",
-  "{name} is on a heater: {n} weeks, {n} hits, zero doubt.",
-  "The rest of the league is on upset watch -- {name} just extended it to {n} in a row.",
+// Spookier flavor of the same escalation, used while the Halloween skin is
+// active -- still no slurs, just increasingly cursed nonsense.
+const SLUMP_TIERS_HALLOWEEN: InsultTier[] = [
+  {
+    max: 3,
+    lines: [
+      "{name} has been hexed for {n} straight weeks. A minor curse, so far.",
+      "{n} weeks of bad juju for {name}. The pumpkin patch is watching.",
+      "{name} hasn't hit in {n} weeks. Something in the graveyard is laughing.",
+    ],
+  },
+  {
+    max: 5,
+    lines: [
+      "{n} straight weeks of darkness for {name}. The crypt keeper is taking notes.",
+      "{name} is {n}-for-{n} on getting cursed. The candy bowl is empty for a reason.",
+      "{name}'s {n}-week haunting shows no sign of lifting.",
+    ],
+  },
+  {
+    max: 7,
+    lines: [
+      "{n} weeks possessed by failure. {name} needs an exorcism, not a pep talk.",
+      "{name} is a walking curse on this billion -- {n} weeks and counting.",
+      "The cauldron bubbles every time {name} misses. That's {n} weeks of bubbling.",
+    ],
+  },
+  {
+    max: Infinity,
+    lines: [
+      "{n} STRAIGHT WEEKS OF DAMNATION. {name} is not cursed, {name} IS the curse.",
+      "The ghosts have unionized against {name} -- {n} weeks of coordinated haunting.",
+      "{name} has been dead weight for {n} weeks. Even the skeletons are embarrassed.",
+    ],
+  },
 ];
 
-function streakLine(name: string, n: number, seed: number, bad: boolean): string {
-  const bank = bad ? SLUMP_INSULTS : HEAT_CHECK_PRAISE;
+// Praise for people on a winning (hit) streak -- also escalates, just upward.
+const HEAT_TIERS: InsultTier[] = [
+  {
+    max: 3,
+    lines: [
+      "{name} is {n}-for-{n} and somehow still humble about it. Respect.",
+      "{n} straight hits for {name}. Somebody check their crystal ball.",
+    ],
+  },
+  {
+    max: 5,
+    lines: [
+      "{name} has hit {n} weeks in a row. Certified league menace.",
+      "All hail {name}: {n}-week hit streak and counting.",
+    ],
+  },
+  {
+    max: 7,
+    lines: [
+      "{name} is COOKING -- {n} straight weeks of touchdowns. Buy stock now.",
+      "{n} for {n}. {name} might actually be cheating. (They're not. They're just better.)",
+    ],
+  },
+  {
+    max: Infinity,
+    lines: [
+      "{name} is on a heater of biblical proportions: {n} weeks, {n} hits, zero doubt.",
+      "The rest of the league is on upset watch -- {name} just extended it to {n} in a row. Unstoppable.",
+    ],
+  },
+];
+
+function pickTier(tiers: InsultTier[], n: number): string[] {
+  return (tiers.find((t) => n <= t.max) ?? tiers[tiers.length - 1]).lines;
+}
+
+function streakLine(
+  name: string,
+  n: number,
+  seed: number,
+  bad: boolean,
+  halloween: boolean
+): string {
+  const bank = bad
+    ? pickTier(halloween ? SLUMP_TIERS_HALLOWEEN : SLUMP_TIERS, n)
+    : pickTier(HEAT_TIERS, n);
   let h = seed >>> 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return bank[h % bank.length]
@@ -297,8 +461,10 @@ function streakLine(name: string, n: number, seed: number, bad: boolean): string
 export type StreakRow = { displayName: string; streak: number };
 
 // Scrolling ticker that bullies anyone on a 2+ week miss streak and hypes up
-// anyone on a 2+ week hit streak. Quietly does nothing if nobody qualifies.
-export function StreakTicker({ rows }: { rows: StreakRow[] }) {
+// anyone on a 2+ week hit streak. The bullying gets progressively nastier the
+// longer the slump runs. Quietly does nothing if nobody qualifies.
+export async function StreakTicker({ rows }: { rows: StreakRow[] }) {
+  const halloween = await isHalloweenActive();
   const slumping = rows.filter((r) => r.streak <= -STREAK_THRESHOLD);
   const heating = rows.filter((r) => r.streak >= STREAK_THRESHOLD);
   if (slumping.length === 0 && heating.length === 0) return null;
@@ -310,7 +476,7 @@ export function StreakTicker({ rows }: { rows: StreakRow[] }) {
           <Marquee>
             {heating.map((r, i) => (
               <span key={r.displayName} style={{ marginRight: 40 }}>
-                &#128293; {streakLine(r.displayName, r.streak, i * 2654435761, false)}
+                &#128293; {streakLine(r.displayName, r.streak, i * 2654435761, false, halloween)}
               </span>
             ))}
           </Marquee>
@@ -321,7 +487,8 @@ export function StreakTicker({ rows }: { rows: StreakRow[] }) {
           <Marquee>
             {slumping.map((r, i) => (
               <span key={r.displayName} style={{ marginRight: 40 }}>
-                &#129398; {streakLine(r.displayName, -r.streak, i * 2654435761, true)}
+                {halloween ? "\uD83D\uDC80" : "\uD83E\uDD98"}{" "}
+                {streakLine(r.displayName, -r.streak, i * 2654435761, true, halloween)}
               </span>
             ))}
           </Marquee>
@@ -336,32 +503,42 @@ const underline: React.CSSProperties = {
   background: "#ffff99",
 };
 
-export function FooterJunk() {
+export async function FooterJunk() {
   const visits = 1_000_000 - 12; // "almost a billion visitors"
+  const halloween = await isHalloweenActive();
   return (
     <div className="footer-junk">
       <hr className="fancy" />
       <div className="construction blink">
-        &#9888;&#128679; UNDER CONSTRUCTION &#128679;&#9888; PARDON OUR DUST &#9888;&#128679;
+        {halloween
+          ? <>&#127875;&#128123; THE CRYPT IS UNDER CONSTRUCTION &#128123;&#127875; PARDON OUR GHOSTS &#127875;&#128123;</>
+          : <>&#9888;&#128679; UNDER CONSTRUCTION &#128679;&#9888; PARDON OUR DUST &#9888;&#128679;</>}
       </div>
       <div className="flames">
-        &#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;&#128293;
+        {halloween
+          ? "\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}"
+          : "\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}"}
       </div>
 
       <div>
         You are visitor #{" "}
         <span className="counter">{visits.toLocaleString("en-US")}</span>{" "}
-        <span className="hotnew">so far!</span>
+        <span className="hotnew">{halloween ? "to rise from the grave!" : "so far!"}</span>
       </div>
 
       <div className="guestbook">
         <span className="bob" style={{ fontSize: 20 }}>&#9997;</span>{" "}
-        <a href="#guestbook">SIGN MY GUESTBOOK</a> &nbsp;|&nbsp;{" "}
+        <a href="#guestbook">{halloween ? "SIGN MY CURSED GUESTBOOK" : "SIGN MY GUESTBOOK"}</a>{" "}
+        &nbsp;|&nbsp;{" "}
         <a href="#webring">&laquo; PARLAY WEBRING &raquo;</a> &nbsp;|&nbsp;{" "}
         <a href="#top">BACK 2 TOP</a>
       </div>
 
-      <div>Best viewed in Internet Explorer 6 at 1024&times;768</div>
+      <div>
+        {halloween
+          ? "Best viewed by candlelight at 1024\u00d7768 (RIP IE6, gone but not forgotten)"
+          : "Best viewed in Internet Explorer 6 at 1024\u00d7768"}
+      </div>
       <div>&#169; {new Date().getFullYear()} letswinabillion.com &#8212; Made with Notepad &#10084; &#8212; Powered by VIBES</div>
       <div className="small">
         For entertainment only. We do not place bets for you and this is not
@@ -370,8 +547,9 @@ export function FooterJunk() {
       </div>
 
       <Marquee>
-        &#11088; THANKS 4 VISITING &#11088; COME BACK SOON &#11088; DON&apos;T
-        FORGET 2 PAY UR DOLLAR &#11088; THIS SITE IS 100% RADICAL &#11088;
+        {halloween
+          ? "\u{1F383} THANKS 4 VISITING THE CRYPT \u{1F383} COME BACK SOON (OR WE WILL FIND YOU) \u{1F383} DON'T FORGET 2 PAY UR DOLLAR OR FACE THE CURSE \u{1F383} THIS SITE IS 100% HAUNTED \u{1F383}"
+          : "\u2B50 THANKS 4 VISITING \u2B50 COME BACK SOON \u2B50 DON'T FORGET 2 PAY UR DOLLAR \u2B50 THIS SITE IS 100% RADICAL \u2B50"}
       </Marquee>
     </div>
   );

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { isHalloweenActive } from "@/lib/theme";
+import { HalloweenDecor } from "@/components/halloween-decor";
 
 export const metadata: Metadata = {
   title: "LETS WIN A BILLION!!! ~ Official League Parlay Tracker ~",
@@ -12,14 +14,18 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const halloween = await isHalloweenActive();
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={halloween ? "halloween-mode" : undefined}>
+        {halloween ? <HalloweenDecor /> : null}
+        {children}
+      </body>
     </html>
   );
 }
