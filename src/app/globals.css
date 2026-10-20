@@ -1103,6 +1103,371 @@ body.jackpot-mode #top {
   max-width: 100%;
 }
 
+/* ======================================================================
+   HALLOWEEN SKIN -- maximum cheese. Toggle with the SPOOKY MODE button, or
+   just visit in October and let the site haunt itself automatically.
+   ====================================================================== */
+
+body.halloween-mode {
+  background-color: #150019;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 140, 0, 0.07) 0px,
+      rgba(255, 140, 0, 0.07) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.35) 0px,
+      rgba(0, 0, 0, 0.35) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    radial-gradient(circle at 50% -10%, rgba(255, 110, 0, 0.25), transparent 55%);
+}
+body.halloween-mode::before {
+  /* swap the twinkly stars for a sickly green fog of tiny eyes */
+  background-image: radial-gradient(1.5px 1.5px at 20px 30px, #7cff6b, transparent),
+    radial-gradient(1.5px 1.5px at 90px 70px, #ff8c00, transparent),
+    radial-gradient(2px 2px at 160px 120px, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 50px 160px, #7cff6b, transparent),
+    radial-gradient(1.5px 1.5px at 200px 50px, #ff8c00, transparent);
+  opacity: 0.35;
+}
+
+body.halloween-mode .window {
+  background: #2a1030;
+  border-color: #2a1030;
+  border-top-color: #4a1f55;
+  border-left-color: #4a1f55;
+  border-right-color: #0a0010;
+  border-bottom-color: #0a0010;
+  box-shadow: 2px 2px 0 #000, 0 0 16px rgba(255, 110, 0, 0.25);
+}
+body.halloween-mode .titlebar {
+  background: linear-gradient(90deg, #1a0000 0%, #ff6a00 55%, #ffb000 100%);
+  color: #fff6cc;
+  text-shadow: 1px 1px 0 #000, 0 0 6px #ff6a00;
+}
+body.halloween-mode .window-body {
+  background: #2a1030;
+  color: #f0d9ff;
+}
+body.halloween-mode .sunken {
+  background: #140018;
+  color: #f0d9ff;
+  border-color: #4a1f55 #0a0010 #0a0010 #4a1f55;
+}
+body.halloween-mode .raised {
+  background: #3a1a40;
+  border-top-color: #6a2f75;
+  border-left-color: #6a2f75;
+  border-right-color: #0a0010;
+  border-bottom-color: #0a0010;
+}
+
+body.halloween-mode .logo,
+body.halloween-mode .logo-hw {
+  background: linear-gradient(#ffcf4d, #ff6a00 50%, #7a1fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 106, 0, 0.6);
+}
+body.halloween-mode .tagline {
+  color: #ff8c00;
+  text-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+}
+body.halloween-mode .wordart {
+  background: linear-gradient(#ffd166, #ff6a00 45%, #7a1fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.halloween-mode marquee {
+  color: #ffb000;
+  background: #0a0010;
+  border-color: #ff6a00;
+}
+
+body.halloween-mode .navbtn,
+body.halloween-mode button.navbtn {
+  background: #3a1a40;
+  border-top-color: #6a2f75;
+  border-left-color: #6a2f75;
+  border-right-color: #0a0010;
+  border-bottom-color: #0a0010;
+  color: #ffcf4d;
+}
+
+body.halloween-mode .payout-box {
+  background: #0a0010;
+  border-color: #ff6a00;
+}
+body.halloween-mode .payout-box::before {
+  content: "\01F383 ";
+}
+body.halloween-mode .payout-box::after {
+  content: " \1F383";
+}
+body.halloween-mode .payout-amount {
+  color: #ff8c00;
+  text-shadow: 0 0 10px #ff8c00;
+}
+body.halloween-mode .payout-share {
+  color: #ffd166;
+}
+body.halloween-mode .payout-label {
+  color: #c77dff;
+}
+body.halloween-mode .jackpot-banner {
+  color: #ffd166;
+  background: #0a0010;
+  border-color: #7a1fff;
+}
+body.halloween-mode .jackpot-banner::before {
+  content: "\01F480 ";
+}
+body.halloween-mode .jackpot-banner::after {
+  content: " \1F480";
+}
+body.halloween-mode .dead {
+  color: #ff8c00;
+  background: #0a0010;
+  border-color: #ff8c00;
+}
+body.halloween-mode .dead::before {
+  content: "\01F383 ";
+}
+
+body.halloween-mode table.board th {
+  background: #4a0033;
+  color: #ffd166;
+}
+body.halloween-mode table.board tr:nth-child(even) td {
+  background: #2a1030;
+  color: #f0d9ff;
+  border-color: #4a1f55;
+}
+body.halloween-mode table.board tr:nth-child(odd) td {
+  background: #1a0a22;
+  color: #f0d9ff;
+  border-color: #4a1f55;
+}
+
+body.halloween-mode .shame-wall {
+  border-color: #ff6a00;
+  background: repeating-linear-gradient(45deg, #2a0030, #2a0030 12px, #170018 12px, #170018 24px);
+  box-shadow: 0 0 0 3px #000, 0 0 18px #ff6a00;
+}
+body.halloween-mode .shame-title {
+  color: #ff8c00;
+  text-shadow: 0 0 6px #ff6a00, 2px 2px 0 #000;
+}
+body.halloween-mode .shame-list li {
+  background: #0a0010;
+  border-left-color: #ff6a00;
+}
+body.halloween-mode .shame-name {
+  color: #ffd166;
+  text-shadow: 1px 1px 0 #ff6a00;
+}
+body.halloween-mode .shame-foot {
+  color: #ffd166;
+}
+
+body.halloween-mode .miss-scroller {
+  background: #1a0010;
+  border-color: #7a1fff;
+  color: #f0d9ff;
+  box-shadow: 0 0 10px #7a1fff;
+}
+body.halloween-mode .streak-hot {
+  background: #1a2a00;
+  border-color: #c7ff4d;
+  color: #eaffcc;
+  box-shadow: 0 0 10px #c7ff4d;
+}
+body.halloween-mode .streak-cold {
+  background: #1a0010;
+  border-color: #7a1fff;
+  color: #e3cfff;
+  box-shadow: 0 0 10px #7a1fff;
+}
+
+body.halloween-mode .footer-junk {
+  color: #ffd166;
+}
+body.halloween-mode .counter {
+  background: #000;
+  color: #ff8c00;
+  border-color: #ff6a00;
+}
+body.halloween-mode .construction {
+  color: #ff8c00;
+}
+body.halloween-mode hr.fancy {
+  background: repeating-linear-gradient(90deg, #ff6a00 0 10px, #7a1fff 10px 20px, #0a0010 20px 30px, #ffd166 30px 40px);
+}
+
+body.halloween-mode .wrs-modal {
+  background: repeating-linear-gradient(45deg, #2a0030, #2a0030 14px, #170018 14px, #170018 28px);
+  border-color: #ff6a00;
+  box-shadow: 0 0 30px #ff6a00;
+}
+body.halloween-mode .wrs-title {
+  color: #ffd166;
+}
+body.halloween-mode .wrs-dead {
+  color: #ff8c00;
+  text-shadow: 0 0 8px #ff6a00;
+}
+body.halloween-mode .wrs-list li {
+  background: #0a0010;
+  border-left-color: #ff6a00;
+  color: #f0d9ff;
+}
+body.halloween-mode .wrs-name {
+  color: #ffd166;
+  text-shadow: 1px 1px 0 #ff6a00;
+}
+
+/* ---- the decorative overlay: cobwebs, flapping bats, drifting ghosts ---- */
+.hw-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hw-cobweb {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: repeating-conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.95) 0deg 0.9deg,
+      transparent 0.9deg 15deg
+    ),
+    repeating-radial-gradient(
+      circle,
+      transparent 0 22px,
+      rgba(255, 255, 255, 0.7) 22px 24px
+    );
+  filter: drop-shadow(1px 1px 1px #000) drop-shadow(0 0 4px #000);
+  opacity: 1;
+}
+.hw-cobweb-tl {
+  top: -60px;
+  left: -60px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.hw-cobweb-tr {
+  top: -60px;
+  right: -60px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+@keyframes batfly {
+  0% {
+    transform: translate(-10vw, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(28vw, -6vh) rotate(10deg);
+  }
+  50% {
+    transform: translate(58vw, 4vh) rotate(-8deg);
+  }
+  75% {
+    transform: translate(84vw, -3vh) rotate(6deg);
+  }
+  100% {
+    transform: translate(112vw, 2vh) rotate(0deg);
+  }
+}
+.hw-bat {
+  position: absolute;
+  left: 0;
+  font-size: 26px;
+  animation-name: batfly;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 4px #000);
+}
+.hw-bat-1 {
+  top: 8vh;
+  animation-duration: 13s;
+  animation-delay: 0s;
+}
+.hw-bat-2 {
+  top: 22vh;
+  font-size: 20px;
+  animation-duration: 17s;
+  animation-delay: -5s;
+}
+.hw-bat-3 {
+  top: 38vh;
+  font-size: 18px;
+  animation-duration: 21s;
+  animation-delay: -11s;
+}
+
+@keyframes ghostdrift {
+  0% {
+    transform: translateY(105vh) translateX(0) scale(0.9);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(45vh) translateX(5vw) scale(1.1);
+  }
+  90% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(-15vh) translateX(-4vw) scale(0.95);
+    opacity: 0;
+  }
+}
+.hw-ghost {
+  position: absolute;
+  font-size: 32px;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.hw-ghost-1 {
+  left: 10vw;
+  animation-name: ghostdrift;
+  animation-duration: 16s;
+  animation-delay: -2s;
+}
+.hw-ghost-2 {
+  left: 80vw;
+  font-size: 24px;
+  animation-name: ghostdrift;
+  animation-duration: 19s;
+  animation-delay: -9s;
+}
+
+@media (max-width: 640px) {
+  .hw-cobweb {
+    width: 120px;
+    height: 120px;
+  }
+  .hw-bat {
+    font-size: 18px;
+  }
+  .hw-ghost {
+    font-size: 22px;
+  }
+}
+
 @media (max-width: 640px) {
   body {
     padding: 4px;
