@@ -1,7 +1,6 @@
 import { createElement } from "react";
 import Link from "next/link";
 import { getActiveSkin, type ActiveSkin } from "@/lib/theme";
-import { SkinToggle } from "./skin-toggle";
 
 // <marquee> is deprecated HTML with no React JSX typing - build it manually.
 function Marquee({ children }: { children: React.ReactNode }) {
@@ -323,20 +322,6 @@ export async function Nav({
       <Link className="navbtn" href="/admin" style={active === "admin" ? underline : undefined}>
         &#128081; HEAD GAMBLER
       </Link>
-      <SkinToggle
-        skin="halloween"
-        active={skin === "halloween"}
-        onLabel="\uD83C\uDF83 SPOOKY MODE"
-        offLabel="\u2600\uFE0F EXIT SPOOKY MODE"
-        title="Toggle the cheesiest skin on the entire internet"
-      />
-      <SkinToggle
-        skin="thanksgiving"
-        active={skin === "thanksgiving"}
-        onLabel="\uD83E\uDD83 GOBBLE MODE"
-        offLabel="\u2600\uFE0F EXIT GOBBLE MODE"
-        title="Toggle the most stuffed skin on the entire internet"
-      />
     </div>
   );
 }
