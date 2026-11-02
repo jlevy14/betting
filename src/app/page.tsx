@@ -9,6 +9,7 @@ import {
   StreakTicker,
 } from "@/components/chrome";
 import { StatusPill, LegCount } from "@/components/status";
+import { RileySticker } from "@/components/riley-sticker";
 import { LiveRefresher } from "./live-refresher";
 import { JackpotCelebration } from "./jackpot";
 import { WeekResetShame } from "./week-reset-shame";
@@ -117,6 +118,7 @@ export default async function BoardPage({
       <div className={`board-layout ${weeks.length > 1 ? "" : "no-aside"}`}>
         <main className="maincol">
       <Window title={`THE BOARD - ${weekLabel(week.season, week.seasonType, week.weekNum)}`} icon={"\uD83D\uDCCA"}>
+        <RileySticker />
         {board.jackpot ? (
           <div className="jackpot-banner blink">
             &#128176; WE ARE BILLIONAIRES!!! ALL {LEAGUE_SIZE} LEGS HIT!!! &#128176;
