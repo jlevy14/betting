@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { isHalloweenActive } from "@/lib/theme";
+import { getActiveSkin } from "@/lib/theme";
 import { HalloweenDecor } from "@/components/halloween-decor";
+import { ThanksgivingDecor } from "@/components/thanksgiving-decor";
 
 export const metadata: Metadata = {
   title: "LETS WIN A BILLION!!! ~ Official League Parlay Tracker ~",
@@ -19,11 +20,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
+  const bodyClass =
+    skin === "halloween"
+      ? "halloween-mode"
+      : skin === "thanksgiving"
+      ? "thanksgiving-mode"
+      : undefined;
   return (
     <html lang="en">
-      <body className={halloween ? "halloween-mode" : undefined}>
-        {halloween ? <HalloweenDecor /> : null}
+      <body className={bodyClass}>
+        {skin === "halloween" ? <HalloweenDecor /> : null}
+        {skin === "thanksgiving" ? <ThanksgivingDecor /> : null}
         {children}
       </body>
     </html>
