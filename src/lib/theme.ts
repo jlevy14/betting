@@ -1,8 +1,5 @@
 import "server-only";
-import { cookies } from "next/headers";
-import { THEME_COOKIE } from "./theme-cookie";
 
-export type ThemeMode = "auto" | "halloween" | "thanksgiving" | "normal";
 export type ActiveSkin = "halloween" | "thanksgiving" | "normal";
 
 /** The cheesy Halloween window: all of October. */
@@ -15,25 +12,12 @@ function isThanksgivingSeason(now: Date = new Date()): boolean {
   return now.getMonth() === 10; // 0-indexed; 10 = November
 }
 
-/** Reads the visitor's explicit skin override, if they've set one. */
-export async function getThemeMode(): Promise<ThemeMode> {
-  const store = await cookies();
-  const raw = store.get(THEME_COOKIE)?.value;
-  return raw === "halloween" || raw === "thanksgiving" || raw === "normal"
-    ? raw
-    : "auto";
-}
-
 /**
- * Which skin should render right now. An explicit toggle (via one of the
- * skin buttons) always wins; otherwise the site auto-equips a costume based
- * on the calendar -- cursed in October, stuffed in November.
+ * Which skin renders right now. Purely calendar-driven -- cursed in
+ * October, stuffed in November -- with no visitor override. Whatever the
+ * calendar says is the only view available.
  */
 export async function getActiveSkin(): Promise<ActiveSkin> {
-  const mode = await getThemeMode();
-  if (mode === "halloween" || mode === "thanksgiving" || mode === "normal") {
-    return mode;
-  }
   if (isThanksgivingSeason()) return "thanksgiving";
   if (isHalloweenSeason()) return "halloween";
   return "normal";
