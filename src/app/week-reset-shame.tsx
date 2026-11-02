@@ -12,11 +12,11 @@ type Recap = {
 };
 
 const ROASTS = [
-  "played themselves.",
+  "played himself.",
   "let the whole league down.",
   "picked a human traffic cone.",
   "owes everyone an apology.",
-  "should be ashamed to show their face.",
+  "should be ashamed to show his face.",
   "cost us the bag. Again.",
   "is why we can't have nice things.",
   "belongs on a milk carton for that pick.",

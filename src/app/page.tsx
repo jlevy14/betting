@@ -196,7 +196,7 @@ export default async function BoardPage({
               <tr>
                 <th>#</th>
                 <th>MANAGER</th>
-                <th>THEIR GUY</th>
+                <th>HIS GUY</th>
                 <th>TEAM</th>
                 <th>vs</th>
                 <th>KICKOFF</th>

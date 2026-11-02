@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import Link from "next/link";
-import { isHalloweenActive } from "@/lib/theme";
-import { HalloweenToggle } from "./halloween-toggle";
+import { getActiveSkin, type ActiveSkin } from "@/lib/theme";
+import { SkinToggle } from "./skin-toggle";
 
 // <marquee> is deprecated HTML with no React JSX typing - build it manually.
 function Marquee({ children }: { children: React.ReactNode }) {
@@ -40,9 +40,9 @@ export function Window({
 }
 
 export async function SiteHeader() {
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
 
-  if (halloween) {
+  if (skin === "halloween") {
     return (
       <>
         <div className="center" style={{ marginBottom: 2 }}>
@@ -66,6 +66,35 @@ export async function SiteHeader() {
           HEX, RESULTS DEFINITELY NOT GUARANTEED) &#127875; &nbsp; PICK A GUY.
           HE SCORES. WE EAT. HE MISSES. WE ARE HAUNTED FOREVER. &nbsp; TRICK
           OR TREAT &nbsp; &#9760; SIGN THE CURSED GUESTBOOK &#9760;
+        </Marquee>
+      </>
+    );
+  }
+
+  if (skin === "thanksgiving") {
+    return (
+      <>
+        <div className="center" style={{ marginBottom: 2 }}>
+          <span className="spin" style={{ fontSize: 32 }}>&#129427;</span>
+          <span className="hotnew blink">GOBBLE!</span>
+          <span className="bob" style={{ fontSize: 28 }}>&#127811;</span>
+          <span className="hotnew" style={{ transform: "rotate(8deg)" }}>STUFFED!</span>
+          <span className="spin" style={{ fontSize: 32 }}>&#129427;</span>
+        </div>
+        <div className="logo shake logo-tg">LETS WIN A BILLION (BEFORE DINNER)</div>
+        <div className="tagline blink">
+          &#127811;&#129427;&#127811; The Official 12-Man $12 Anytime-TD THANKSGIVING Parlay Tracker &#127811;&#129427;&#127811;
+        </div>
+        <div className="center flames">
+          &#127813;&#127811;&#127790;&#127805;&#129427;&#127805;&#127790;&#127811;&#127813;
+        </div>
+        <Marquee>
+          WELCOME 2 THE MOST STUFFED FANTASY SITE ON THE ENTIRE WORLD WIDE
+          WEB!!!1! &nbsp; &#129427; ONE DOLLAR IN, A BILLION DOLLARS OUT
+          (RESULTS DEFINITELY NOT GUARANTEED, UNLIKE UNCLE RICK&apos;S
+          OPINIONS) &#129427; &nbsp; PICK A GUY. HE SCORES. WE EAT (SECOND
+          HELPINGS). HE MISSES. WE STILL EAT. &nbsp; GOBBLE GOBBLE &nbsp;
+          &#11088; SIGN THE HARVEST GUESTBOOK &#11088;
         </Marquee>
       </>
     );
@@ -107,7 +136,7 @@ const SHAME_INSULTS = [
   "BREAKING: {name} has the football IQ of a soggy gas-station napkin.",
   "{name} is out here fumbling life itself. Make a pick, you gutless clown.",
   "Everyone agrees {name} is the reason we can't have nice things.",
-  "{name} ghosts the parlay the same way they ghost every responsibility. Shameful.",
+  "{name} ghosts the parlay the same way he ghosts every responsibility. Shameful.",
   "{name}: always last, always sweating, always a bottom-feeder.",
   "{name} couldn't find the 'MAKE A PICK' button with two hands and a flashlight.",
   "History will remember {name} as the deadbeat who cost us the billion.",
@@ -156,9 +185,9 @@ export function ShameWall({ names }: { names: string[] }) {
 // Slimmer header for the board so the page fits on one screen. The loud
 // decorations live in the sidebar (SidebarJunk) instead of stacked up top.
 export async function CompactHeader() {
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
 
-  if (halloween) {
+  if (skin === "halloween") {
     return (
       <>
         <div className="center" style={{ marginBottom: 2 }}>
@@ -174,6 +203,27 @@ export async function CompactHeader() {
         </Marquee>
         <div className="tagline blink">
           &#9760;&#9760;&#9760; LETS WIN A CURSED BILLION &#8212; 12-Man $12 Anytime-TD HAUNTED Parlay Tracker &#9760;&#9760;&#9760;
+        </div>
+      </>
+    );
+  }
+
+  if (skin === "thanksgiving") {
+    return (
+      <>
+        <div className="center" style={{ marginBottom: 2 }}>
+          <span className="spin" style={{ fontSize: 24 }}>&#129427;</span>
+          <span className="bob" style={{ fontSize: 22 }}>&#127811;</span>
+          <span className="spin" style={{ fontSize: 24, animationDirection: "reverse" }}>&#129427;</span>
+          <span className="bob" style={{ fontSize: 22 }}>&#127811;</span>
+        </div>
+        <Marquee>
+          &#127811; ONE DOLLAR IN, A BILLION DOLLARS OUT (RESULTS DEFINITELY
+          NOT GUARANTEED, UNLIKE SECONDS AT THE TABLE) &#127811; PICK A GUY.
+          HE SCORES. WE EAT. &nbsp; GOBBLE GOBBLE!!!!
+        </Marquee>
+        <div className="tagline blink">
+          &#127811;&#129427;&#127811; LETS WIN A BILLION &#8212; 12-Man $12 Anytime-TD THANKSGIVING Parlay Tracker &#127811;&#129427;&#127811;
         </div>
       </>
     );
@@ -252,11 +302,13 @@ export async function Nav({
 }: {
   active: "board" | "pick" | "leaderboard" | "admin";
 }) {
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
+  const boardIcon =
+    skin === "halloween" ? "\uD83C\uDF83" : skin === "thanksgiving" ? "\uD83E\uDD83" : "\uD83C\uDFE0";
   return (
     <div className="navbar">
       <Link className="navbtn" href="/" style={active === "board" ? underline : undefined}>
-        {halloween ? "\uD83C\uDF83 THE BOARD" : "\uD83C\uDFE0 THE BOARD"}
+        {boardIcon} THE BOARD
       </Link>
       <Link className="navbtn" href="/pick" style={active === "pick" ? underline : undefined}>
         &#9997; MAKE YOUR PICK
@@ -271,7 +323,20 @@ export async function Nav({
       <Link className="navbtn" href="/admin" style={active === "admin" ? underline : undefined}>
         &#128081; HEAD GAMBLER
       </Link>
-      <HalloweenToggle active={halloween} />
+      <SkinToggle
+        skin="halloween"
+        active={skin === "halloween"}
+        onLabel="\uD83C\uDF83 SPOOKY MODE"
+        offLabel="\u2600\uFE0F EXIT SPOOKY MODE"
+        title="Toggle the cheesiest skin on the entire internet"
+      />
+      <SkinToggle
+        skin="thanksgiving"
+        active={skin === "thanksgiving"}
+        onLabel="\uD83E\uDD83 GOBBLE MODE"
+        offLabel="\u2600\uFE0F EXIT GOBBLE MODE"
+        title="Toggle the most stuffed skin on the entire internet"
+      />
     </div>
   );
 }
@@ -284,7 +349,7 @@ const MISS_INSULTS = [
   "single-handedly threatened the billion. Unforgivable.",
   "chose a player allergic to the end zone. Embarrassing.",
   "made a pick so bad it belongs in a museum of failure.",
-  "got cooked. Somewhere a scout is laughing at them.",
+  "got cooked. Somewhere a scout is laughing at him.",
   "fumbled the assignment. A stain on this proud league.",
 ];
 
@@ -405,13 +470,50 @@ const SLUMP_TIERS_HALLOWEEN: InsultTier[] = [
   },
 ];
 
+// Thanksgiving flavor of the same escalation -- everybody's favorite relative
+// at the dinner table, except it's a losing streak instead of a person.
+const SLUMP_TIERS_THANKSGIVING: InsultTier[] = [
+  {
+    max: 3,
+    lines: [
+      "{name} has gone cold for {n} straight weeks. Pass the gravy and move on.",
+      "{n} weeks, {n} misses for {name}. Dry turkey energy.",
+      "{name} hasn't hit in {n} weeks. Somebody check on him at the kids' table.",
+    ],
+  },
+  {
+    max: 5,
+    lines: [
+      "{n} straight weeks of nothing from {name}. Even the green bean casserole has more upside.",
+      "{name} is {n}-for-{n} on whiffing. The whole table is talking about it over pie.",
+      "{name}'s {n}-week slump is the real Thanksgiving tragedy this year.",
+    ],
+  },
+  {
+    max: 7,
+    lines: [
+      "{n} consecutive weeks of disaster for {name}. He's getting seconds on failure.",
+      "{name} is a certified hazard to this billion -- {n} weeks running, like a bad leftover.",
+      "The whole league is saying grace FOR {name} at this point -- {n} weeks of misses.",
+    ],
+  },
+  {
+    max: Infinity,
+    lines: [
+      "{n} STRAIGHT WEEKS. {name} isn't a manager anymore, he's the thing nobody wants on their plate.",
+      "{name} has missed {n} weeks in a row. Somebody carve him up and move on.",
+      "{n} weeks of pure, uncut failure. {name}, it's time somebody else carved the turkey.",
+    ],
+  },
+];
+
 // Praise for people on a winning (hit) streak -- also escalates, just upward.
 const HEAT_TIERS: InsultTier[] = [
   {
     max: 3,
     lines: [
       "{name} is {n}-for-{n} and somehow still humble about it. Respect.",
-      "{n} straight hits for {name}. Somebody check their crystal ball.",
+      "{n} straight hits for {name}. Somebody check his crystal ball.",
     ],
   },
   {
@@ -425,7 +527,7 @@ const HEAT_TIERS: InsultTier[] = [
     max: 7,
     lines: [
       "{name} is COOKING -- {n} straight weeks of touchdowns. Buy stock now.",
-      "{n} for {n}. {name} might actually be cheating. (They're not. They're just better.)",
+      "{n} for {n}. {name} might actually be cheating. (He's not. He's just better.)",
     ],
   },
   {
@@ -446,11 +548,15 @@ function streakLine(
   n: number,
   seed: number,
   bad: boolean,
-  halloween: boolean
+  skin: ActiveSkin
 ): string {
-  const bank = bad
-    ? pickTier(halloween ? SLUMP_TIERS_HALLOWEEN : SLUMP_TIERS, n)
-    : pickTier(HEAT_TIERS, n);
+  const slumpTiers =
+    skin === "halloween"
+      ? SLUMP_TIERS_HALLOWEEN
+      : skin === "thanksgiving"
+      ? SLUMP_TIERS_THANKSGIVING
+      : SLUMP_TIERS;
+  const bank = bad ? pickTier(slumpTiers, n) : pickTier(HEAT_TIERS, n);
   let h = seed >>> 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return bank[h % bank.length]
@@ -464,10 +570,13 @@ export type StreakRow = { displayName: string; streak: number };
 // anyone on a 2+ week hit streak. The bullying gets progressively nastier the
 // longer the slump runs. Quietly does nothing if nobody qualifies.
 export async function StreakTicker({ rows }: { rows: StreakRow[] }) {
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
   const slumping = rows.filter((r) => r.streak <= -STREAK_THRESHOLD);
   const heating = rows.filter((r) => r.streak >= STREAK_THRESHOLD);
   if (slumping.length === 0 && heating.length === 0) return null;
+
+  const coldEmoji =
+    skin === "halloween" ? "\uD83D\uDC80" : skin === "thanksgiving" ? "\uD83E\uDD83" : "\uD83E\uDD98";
 
   return (
     <div className="streak-ticker">
@@ -476,7 +585,7 @@ export async function StreakTicker({ rows }: { rows: StreakRow[] }) {
           <Marquee>
             {heating.map((r, i) => (
               <span key={r.displayName} style={{ marginRight: 40 }}>
-                &#128293; {streakLine(r.displayName, r.streak, i * 2654435761, false, halloween)}
+                &#128293; {streakLine(r.displayName, r.streak, i * 2654435761, false, skin)}
               </span>
             ))}
           </Marquee>
@@ -487,8 +596,8 @@ export async function StreakTicker({ rows }: { rows: StreakRow[] }) {
           <Marquee>
             {slumping.map((r, i) => (
               <span key={r.displayName} style={{ marginRight: 40 }}>
-                {halloween ? "\uD83D\uDC80" : "\uD83E\uDD98"}{" "}
-                {streakLine(r.displayName, -r.streak, i * 2654435761, true, halloween)}
+                {coldEmoji}{" "}
+                {streakLine(r.displayName, -r.streak, i * 2654435761, true, skin)}
               </span>
             ))}
           </Marquee>
@@ -505,38 +614,58 @@ const underline: React.CSSProperties = {
 
 export async function FooterJunk() {
   const visits = 1_000_000 - 12; // "almost a billion visitors"
-  const halloween = await isHalloweenActive();
+  const skin = await getActiveSkin();
   return (
     <div className="footer-junk">
       <hr className="fancy" />
       <div className="construction blink">
-        {halloween
-          ? <>&#127875;&#128123; THE CRYPT IS UNDER CONSTRUCTION &#128123;&#127875; PARDON OUR GHOSTS &#127875;&#128123;</>
-          : <>&#9888;&#128679; UNDER CONSTRUCTION &#128679;&#9888; PARDON OUR DUST &#9888;&#128679;</>}
+        {skin === "halloween" ? (
+          <>&#127875;&#128123; THE CRYPT IS UNDER CONSTRUCTION &#128123;&#127875; PARDON OUR GHOSTS &#127875;&#128123;</>
+        ) : skin === "thanksgiving" ? (
+          <>&#127811;&#129427; THE DINNER TABLE IS UNDER CONSTRUCTION &#129427;&#127811; PARDON OUR GRAVY &#127811;&#129427;</>
+        ) : (
+          <>&#9888;&#128679; UNDER CONSTRUCTION &#128679;&#9888; PARDON OUR DUST &#9888;&#128679;</>
+        )}
       </div>
       <div className="flames">
-        {halloween
+        {skin === "halloween"
           ? "\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}\u{1F383}"
+          : skin === "thanksgiving"
+          ? "\u{1F983}\u{1F342}\u{1F983}\u{1F342}\u{1F983}\u{1F342}\u{1F983}\u{1F342}\u{1F983}\u{1F342}"
           : "\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}\u{1F525}"}
       </div>
 
       <div>
         You are visitor #{" "}
         <span className="counter">{visits.toLocaleString("en-US")}</span>{" "}
-        <span className="hotnew">{halloween ? "to rise from the grave!" : "so far!"}</span>
+        <span className="hotnew">
+          {skin === "halloween"
+            ? "to rise from the grave!"
+            : skin === "thanksgiving"
+            ? "to the table!"
+            : "so far!"}
+        </span>
       </div>
 
       <div className="guestbook">
         <span className="bob" style={{ fontSize: 20 }}>&#9997;</span>{" "}
-        <a href="#guestbook">{halloween ? "SIGN MY CURSED GUESTBOOK" : "SIGN MY GUESTBOOK"}</a>{" "}
+        <a href="#guestbook">
+          {skin === "halloween"
+            ? "SIGN MY CURSED GUESTBOOK"
+            : skin === "thanksgiving"
+            ? "SIGN MY HARVEST GUESTBOOK"
+            : "SIGN MY GUESTBOOK"}
+        </a>{" "}
         &nbsp;|&nbsp;{" "}
         <a href="#webring">&laquo; PARLAY WEBRING &raquo;</a> &nbsp;|&nbsp;{" "}
         <a href="#top">BACK 2 TOP</a>
       </div>
 
       <div>
-        {halloween
+        {skin === "halloween"
           ? "Best viewed by candlelight at 1024\u00d7768 (RIP IE6, gone but not forgotten)"
+          : skin === "thanksgiving"
+          ? "Best viewed over leftovers at 1024\u00d7768 (loosen your belt first)"
           : "Best viewed in Internet Explorer 6 at 1024\u00d7768"}
       </div>
       <div>&#169; {new Date().getFullYear()} letswinabillion.com &#8212; Made with Notepad &#10084; &#8212; Powered by VIBES</div>
@@ -547,8 +676,10 @@ export async function FooterJunk() {
       </div>
 
       <Marquee>
-        {halloween
+        {skin === "halloween"
           ? "\u{1F383} THANKS 4 VISITING THE CRYPT \u{1F383} COME BACK SOON (OR WE WILL FIND YOU) \u{1F383} DON'T FORGET 2 PAY UR DOLLAR OR FACE THE CURSE \u{1F383} THIS SITE IS 100% HAUNTED \u{1F383}"
+          : skin === "thanksgiving"
+          ? "\u{1F342} THANKS 4 VISITING THE HARVEST \u{1F342} COME BACK FOR SECONDS \u{1F342} DON'T FORGET 2 PAY UR DOLLAR OR SIT AT THE KIDS TABLE \u{1F342} THIS SITE IS 100% STUFFED \u{1F342}"
           : "\u2B50 THANKS 4 VISITING \u2B50 COME BACK SOON \u2B50 DON'T FORGET 2 PAY UR DOLLAR \u2B50 THIS SITE IS 100% RADICAL \u2B50"}
       </Marquee>
     </div>

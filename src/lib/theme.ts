@@ -2,33 +2,49 @@ import "server-only";
 import { cookies } from "next/headers";
 import { THEME_COOKIE } from "./theme-cookie";
 
-export type ThemeMode = "auto" | "halloween" | "normal";
+export type ThemeMode = "auto" | "halloween" | "thanksgiving" | "normal";
+export type ActiveSkin = "halloween" | "thanksgiving" | "normal";
 
-/**
- * The cheesy seasonal window: all of October, plus a couple grace days into
- * November for stragglers who haven't taken their decorations down yet.
- */
+/** The cheesy Halloween window: all of October. */
 function isHalloweenSeason(now: Date = new Date()): boolean {
-  const month = now.getMonth(); // 0-indexed; 9 = October
-  const day = now.getDate();
-  return month === 9 || (month === 10 && day <= 2);
+  return now.getMonth() === 9; // 0-indexed; 9 = October
+}
+
+/** The cheesy Thanksgiving window: all of November. */
+function isThanksgivingSeason(now: Date = new Date()): boolean {
+  return now.getMonth() === 10; // 0-indexed; 10 = November
 }
 
 /** Reads the visitor's explicit skin override, if they've set one. */
 export async function getThemeMode(): Promise<ThemeMode> {
   const store = await cookies();
   const raw = store.get(THEME_COOKIE)?.value;
-  return raw === "halloween" || raw === "normal" ? raw : "auto";
+  return raw === "halloween" || raw === "thanksgiving" || raw === "normal"
+    ? raw
+    : "auto";
 }
 
 /**
- * Whether the Halloween skin should render right now. An explicit toggle
- * (via the SPOOKY MODE button) always wins; otherwise the site auto-equips
- * its cursed costume for the whole month of October.
+ * Which skin should render right now. An explicit toggle (via one of the
+ * skin buttons) always wins; otherwise the site auto-equips a costume based
+ * on the calendar -- cursed in October, stuffed in November.
  */
-export async function isHalloweenActive(): Promise<boolean> {
+export async function getActiveSkin(): Promise<ActiveSkin> {
   const mode = await getThemeMode();
-  if (mode === "halloween") return true;
-  if (mode === "normal") return false;
-  return isHalloweenSeason();
+  if (mode === "halloween" || mode === "thanksgiving" || mode === "normal") {
+    return mode;
+  }
+  if (isThanksgivingSeason()) return "thanksgiving";
+  if (isHalloweenSeason()) return "halloween";
+  return "normal";
+}
+
+/** Whether the Halloween skin should render right now. */
+export async function isHalloweenActive(): Promise<boolean> {
+  return (await getActiveSkin()) === "halloween";
+}
+
+/** Whether the Thanksgiving skin should render right now. */
+export async function isThanksgivingActive(): Promise<boolean> {
+  return (await getActiveSkin()) === "thanksgiving";
 }

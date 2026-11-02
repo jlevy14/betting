@@ -1468,6 +1468,347 @@ body.halloween-mode .wrs-name {
   }
 }
 
+/* ======================================================================
+   THANKSGIVING SKIN -- maximum cheese, autumn edition. Toggle with the
+   GOBBLE MODE button, or just visit in November and let the site stuff
+   itself automatically.
+   ====================================================================== */
+
+body.thanksgiving-mode {
+  background-color: #3b1f0a;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 140, 0, 0.08) 0px,
+      rgba(255, 140, 0, 0.08) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(139, 37, 0, 0.3) 0px,
+      rgba(139, 37, 0, 0.3) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    radial-gradient(circle at 50% -10%, rgba(255, 170, 0, 0.3), transparent 55%);
+}
+body.thanksgiving-mode::before {
+  /* swap the twinkly stars for drifting gold + rust flecks */
+  background-image: radial-gradient(1.5px 1.5px at 20px 30px, #ffcc66, transparent),
+    radial-gradient(1.5px 1.5px at 90px 70px, #ff8c00, transparent),
+    radial-gradient(2px 2px at 160px 120px, #fff0d9, transparent),
+    radial-gradient(1.5px 1.5px at 50px 160px, #c1440e, transparent),
+    radial-gradient(1.5px 1.5px at 200px 50px, #ffcc66, transparent);
+  opacity: 0.35;
+}
+
+body.thanksgiving-mode .window {
+  background: #5a2d0f;
+  border-color: #5a2d0f;
+  border-top-color: #7a4420;
+  border-left-color: #7a4420;
+  border-right-color: #2a1206;
+  border-bottom-color: #2a1206;
+  box-shadow: 2px 2px 0 #000, 0 0 16px rgba(255, 140, 0, 0.25);
+}
+body.thanksgiving-mode .titlebar {
+  background: linear-gradient(90deg, #5a1a00 0%, #c1440e 55%, #ffb000 100%);
+  color: #fff0d9;
+  text-shadow: 1px 1px 0 #000, 0 0 6px #c1440e;
+}
+body.thanksgiving-mode .window-body {
+  background: #5a2d0f;
+  color: #ffe9cc;
+}
+body.thanksgiving-mode .sunken {
+  background: #2a1206;
+  color: #ffe9cc;
+  border-color: #7a4420 #2a1206 #2a1206 #7a4420;
+}
+body.thanksgiving-mode .raised {
+  background: #6b3410;
+  border-top-color: #8a5428;
+  border-left-color: #8a5428;
+  border-right-color: #2a1206;
+  border-bottom-color: #2a1206;
+}
+
+body.thanksgiving-mode .logo,
+body.thanksgiving-mode .logo-tg {
+  background: linear-gradient(#ffd166, #ff8c00 50%, #8b2500);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 2px #000;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 140, 0, 0.6);
+}
+body.thanksgiving-mode .tagline {
+  color: #ff8c00;
+  text-shadow: 0 0 6px rgba(255, 140, 0, 0.6);
+}
+body.thanksgiving-mode .wordart {
+  background: linear-gradient(#ffd166, #ff8c00 45%, #8b2500);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.thanksgiving-mode marquee {
+  color: #ffcc66;
+  background: #2a1206;
+  border-color: #c1440e;
+}
+
+body.thanksgiving-mode .navbtn,
+body.thanksgiving-mode button.navbtn {
+  background: #6b3410;
+  border-top-color: #8a5428;
+  border-left-color: #8a5428;
+  border-right-color: #2a1206;
+  border-bottom-color: #2a1206;
+  color: #ffd166;
+}
+
+body.thanksgiving-mode .payout-box {
+  background: #2a1206;
+  border-color: #c1440e;
+}
+body.thanksgiving-mode .payout-box::before {
+  content: "\01F983 ";
+}
+body.thanksgiving-mode .payout-box::after {
+  content: " \1F983";
+}
+body.thanksgiving-mode .payout-amount {
+  color: #ffb000;
+  text-shadow: 0 0 10px #ffb000;
+}
+body.thanksgiving-mode .payout-share {
+  color: #ffd166;
+}
+body.thanksgiving-mode .payout-label {
+  color: #ff9f4d;
+}
+body.thanksgiving-mode .jackpot-banner {
+  color: #ffd166;
+  background: #2a1206;
+  border-color: #c1440e;
+}
+body.thanksgiving-mode .jackpot-banner::before {
+  content: "\01F983 ";
+}
+body.thanksgiving-mode .jackpot-banner::after {
+  content: " \1F983";
+}
+body.thanksgiving-mode .dead {
+  color: #ff8c00;
+  background: #2a1206;
+  border-color: #ff8c00;
+}
+body.thanksgiving-mode .dead::before {
+  content: "\01F983 ";
+}
+
+body.thanksgiving-mode table.board th {
+  background: #4a2008;
+  color: #ffd166;
+}
+body.thanksgiving-mode table.board tr:nth-child(even) td {
+  background: #5a2d0f;
+  color: #ffe9cc;
+  border-color: #7a4420;
+}
+body.thanksgiving-mode table.board tr:nth-child(odd) td {
+  background: #40210d;
+  color: #ffe9cc;
+  border-color: #7a4420;
+}
+
+body.thanksgiving-mode .shame-wall {
+  border-color: #c1440e;
+  background: repeating-linear-gradient(45deg, #4a1f00, #4a1f00 12px, #2a1100 12px, #2a1100 24px);
+  box-shadow: 0 0 0 3px #000, 0 0 18px #c1440e;
+}
+body.thanksgiving-mode .shame-title {
+  color: #ff8c00;
+  text-shadow: 0 0 6px #c1440e, 2px 2px 0 #000;
+}
+body.thanksgiving-mode .shame-list li {
+  background: #2a1206;
+  border-left-color: #c1440e;
+}
+body.thanksgiving-mode .shame-name {
+  color: #ffd166;
+  text-shadow: 1px 1px 0 #c1440e;
+}
+body.thanksgiving-mode .shame-foot {
+  color: #ffd166;
+}
+
+body.thanksgiving-mode .miss-scroller {
+  background: #2a1100;
+  border-color: #c1440e;
+  color: #ffe9cc;
+  box-shadow: 0 0 10px #c1440e;
+}
+body.thanksgiving-mode .streak-hot {
+  background: #2a2200;
+  border-color: #d4a017;
+  color: #fff3cc;
+  box-shadow: 0 0 10px #d4a017;
+}
+body.thanksgiving-mode .streak-cold {
+  background: #2a1100;
+  border-color: #c1440e;
+  color: #ffe0cc;
+  box-shadow: 0 0 10px #c1440e;
+}
+
+body.thanksgiving-mode .footer-junk {
+  color: #ffd166;
+}
+body.thanksgiving-mode .counter {
+  background: #000;
+  color: #ff8c00;
+  border-color: #c1440e;
+}
+body.thanksgiving-mode .construction {
+  color: #ff8c00;
+}
+body.thanksgiving-mode hr.fancy {
+  background: repeating-linear-gradient(90deg, #c1440e 0 10px, #8b2500 10px 20px, #2a1100 20px 30px, #ffd166 30px 40px);
+}
+
+body.thanksgiving-mode .wrs-modal {
+  background: repeating-linear-gradient(45deg, #4a1f00, #4a1f00 14px, #2a1100 14px, #2a1100 28px);
+  border-color: #c1440e;
+  box-shadow: 0 0 30px #c1440e;
+}
+body.thanksgiving-mode .wrs-title {
+  color: #ffd166;
+}
+body.thanksgiving-mode .wrs-dead {
+  color: #ff8c00;
+  text-shadow: 0 0 8px #c1440e;
+}
+body.thanksgiving-mode .wrs-list li {
+  background: #2a1206;
+  border-left-color: #c1440e;
+  color: #ffe9cc;
+}
+body.thanksgiving-mode .wrs-name {
+  color: #ffd166;
+  text-shadow: 1px 1px 0 #c1440e;
+}
+
+/* ---- the decorative overlay: drifting leaves + strutting turkeys ---- */
+.tg-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+@keyframes leaffall {
+  0% {
+    transform: translateY(-12vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(45vh) translateX(6vw) rotate(180deg);
+  }
+  90% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(110vh) translateX(-4vw) rotate(360deg);
+    opacity: 0;
+  }
+}
+.tg-leaf {
+  position: absolute;
+  top: 0;
+  font-size: 26px;
+  animation-name: leaffall;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 4px #000);
+}
+.tg-leaf-1 {
+  left: 8vw;
+  animation-duration: 14s;
+  animation-delay: 0s;
+}
+.tg-leaf-2 {
+  left: 32vw;
+  font-size: 20px;
+  animation-duration: 18s;
+  animation-delay: -6s;
+}
+.tg-leaf-3 {
+  left: 64vw;
+  font-size: 22px;
+  animation-duration: 16s;
+  animation-delay: -10s;
+}
+.tg-leaf-4 {
+  left: 86vw;
+  font-size: 18px;
+  animation-duration: 20s;
+  animation-delay: -3s;
+}
+
+@keyframes turkeystrut {
+  0% {
+    transform: translate(-10vw, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(28vw, -3vh) rotate(-4deg);
+  }
+  50% {
+    transform: translate(58vw, 2vh) rotate(4deg);
+  }
+  75% {
+    transform: translate(84vw, -2vh) rotate(-3deg);
+  }
+  100% {
+    transform: translate(112vw, 1vh) rotate(0deg);
+  }
+}
+.tg-turkey {
+  position: absolute;
+  left: 0;
+  font-size: 30px;
+  animation-name: turkeystrut;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 4px #000);
+}
+.tg-turkey-1 {
+  top: 14vh;
+  animation-duration: 19s;
+  animation-delay: 0s;
+}
+.tg-turkey-2 {
+  top: 60vh;
+  font-size: 24px;
+  animation-duration: 23s;
+  animation-delay: -8s;
+}
+
+@media (max-width: 640px) {
+  .tg-leaf {
+    font-size: 16px;
+  }
+  .tg-turkey {
+    font-size: 20px;
+  }
+}
+
 @media (max-width: 640px) {
   body {
     padding: 4px;
